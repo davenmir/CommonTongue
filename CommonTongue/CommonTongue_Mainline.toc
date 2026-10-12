@@ -1,7 +1,7 @@
 ## Interface: 120100, 120105
 ## Title: CommonTongue
 ## Notes: Understand and be understood in chat across languages.
-## Version: @project-version@
+## Version: 0.3.0-dev
 ## SavedVariables: CommonTongueDB
 
 Libs\Ace3\LibStub\LibStub.lua
