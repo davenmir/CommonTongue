@@ -1,0 +1,23 @@
+package-as: CommonTongue
+
+move-folders:
+  CommonTongue/CommonTongue: CommonTongue
+
+# Keep the tag in sync with tools/fetch_libs.py.
+externals:
+  CommonTongue/Libs/Ace3:
+    url: https://github.com/WoWUIDev/Ace3
+    tag: Release-r1403
+
+ignore:
+  - .github
+  - docs
+  - samples
+  - spikes
+  - tests
+  - tools
+  - AGENTS.md
+  - .busted
+  - .luacheckrc
+  - .stylua.toml
+  - .styluaignore

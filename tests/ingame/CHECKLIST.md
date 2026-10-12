@@ -3,6 +3,26 @@
 Record each result as: date, build (`/dump select(4, GetBuildInfo())`), flavor,
 outcome, notes. Items here cannot be verified by agents.
 
+## M1 — Skeleton (Retail)
+
+Setup: `python tools/fetch_libs.py`, then link `CommonTongue/` into
+`_retail_/Interface/AddOns/` (see `docs/TESTING.md` §3).
+
+- [ ] Addon loads with no Lua errors (BugSack empty) and appears in the AddOns
+      list as "CommonTongue".
+- [ ] `/ct` opens the CommonTongue page in the game's Settings window.
+- [ ] `/ct` during combat prints "Settings can't be opened in combat." and
+      does not open anything or cause errors.
+- [ ] Target language dropdown lists "Same as game client (English)" first,
+      then all 11 languages in their own scripts (Русский, 한국어, 简体中文 render).
+- [ ] Changing target language and toggling chat types survive `/reload` and
+      a full relog.
+- [ ] `/ct version` prints a version and `Mainline`. (Unpackaged dev builds show
+      `@project-version@`.)
+- [ ] `/ct debug` then `/dump CommonTongue.DB:Profile()` shows settings;
+      `/ct debug` again makes `CommonTongue` nil.
+- [ ] `/ct nonsense` prints the help list.
+
 ## M0 — Feasibility spike (Retail)
 
 ### Results

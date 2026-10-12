@@ -1,7 +1,8 @@
 # CommonTongue
 A world of warcraft addon that removes the language barrier from play. Set your target language and unlock new friendships around the world.
 
-> Status: planning (milestone M0, feasibility spike). Not yet playable.
+> Status: milestone M1 (skeleton). The addon installs and has settings, but
+> does not translate anything yet.
 
 ## Development
 

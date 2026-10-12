@@ -40,8 +40,10 @@ change that discovers it.
 5. **Multi-flavor ready.** Retail is the first target, but all flavor-specific
    API access goes through the compat layer (`Core/Compat.lua`). No direct calls
    to flavor-divergent APIs from feature modules.
-6. **No globals** other than the addon's single namespace table and the
-   SavedVariables declared in the TOC.
+6. **No globals** other than the SavedVariables declared in the TOC and what WoW
+   requires to register the `/ct` slash command (`SLASH_COMMONTONGUE1..n`,
+   `SlashCmdList.COMMONTONGUE`). The namespace is exposed as `CommonTongue`
+   only while `/ct debug` is on. `.luacheckrc` is the enforced list.
 
 ## 4. Workflow for every task
 

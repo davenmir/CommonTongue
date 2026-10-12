@@ -112,12 +112,13 @@ Each file registers into the shared namespace: `local _, ns = ...`.
 
 | Module | File(s) | Responsibility |
 |---|---|---|
-| Bootstrap | `Core/Init.lua` | Create `ns`, version info, module registry, load order |
-| Compat | `Core/Compat.lua`, `Core/Compat_<Flavor>.lua` | Single access point for flavor-divergent APIs (ADR-0003) |
-| Events | `Core/Events.lua` | Event dispatcher; modules subscribe instead of owning frames |
-| DB | `Core/DB.lua` | SavedVariables defaults, versioned migrations |
+| Bootstrap | `Core/Init.lua` | `ns` fields, module registry, `OnInitialize`/`OnEnable` lifecycle, `L` fallback, `ns:Print` |
+| Compat | `Core/Compat.lua`, `Core/Compat_<Flavor>.lua` | Single access point for flavor-divergent APIs (ADR-0003); also `SafeCall` |
+| Events | `Core/Events.lua` | Event dispatcher; modules subscribe instead of owning frames; drives the lifecycle from `ADDON_LOADED`/`PLAYER_LOGIN` |
+| DB | `Core/DB.lua` | AceDB-backed SavedVariables (`CommonTongueDB`), defaults, schema migrations on raw data before AceDB loads it |
 | UTF8 | `Core/UTF8.lua` | Codepoint iteration, length, safe truncation, script classification |
 | Locale | `Locales/*.lua` | UI strings (`L` table), *not* translation data |
+| Languages | `Engine/Languages.lua` | Supported language codes, native names, client-locale normalization, `targetLanguage` resolution |
 | Normalize | `Engine/Normalize.lua` | Text → token stream with placeholders for links, icons, numbers |
 | Detect | `Engine/Detect.lua` | Language ID + confidence |
 | Phrase | `Engine/Phrase.lua` | Pattern matching to phrase IDs and rendering |
@@ -129,7 +130,8 @@ Each file registers into the shared namespace: `local _, ns = ...`.
 | ChatFilter | `UI/ChatFilter.lua` | Hooks chat events, drives the pipeline |
 | Render | `UI/Render.lua` | Output formatting, tier markers, hover tooltips |
 | Composer | `UI/Composer.lua` | Quick-phrase picker / autocomplete |
-| Settings | `UI/Settings.lua` | Options panel |
+| Settings | `UI/Settings.lua` | AceConfig options panel in the game's Settings window |
+| Slash | `UI/Slash.lua` | `/ct` and `/commontongue` commands |
 
 Dependency rule: `UI → Comm → Engine → Core`. Lower layers never reference
 higher ones. `Engine/` must be pure logic with no WoW API calls (other than via

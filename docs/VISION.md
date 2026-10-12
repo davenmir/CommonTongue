@@ -82,7 +82,7 @@ in ADR-0005 (pending, M3).
 Agents work only in the current milestone (marked **CURRENT**). Check boxes as
 tasks complete. Do not start the next milestone without user confirmation.
 
-### M0 — Feasibility spike **(CURRENT)**
+### M0 — Feasibility spike (done except the grouped dungeon check, carried into M1)
 Goal: confirm the platform facts the design depends on. Output is findings
 recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
 - [ ] Confirm chat message filtering/rewriting via `ChatFrame_AddMessageEventFilter`
@@ -102,12 +102,16 @@ recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
       *545 ms, ~4.6 MB; see `ARCHITECTURE.md` §9.*
 - [x] Decide embedded library set (ADR-0004).
 
-### M1 — Skeleton
-- [ ] Addon folder, Retail TOC, namespace bootstrap, event dispatcher.
-- [ ] Compat layer stub with flavor detection.
-- [ ] SavedVariables with defaults and migrations; slash command `/ct`.
-- [ ] Settings panel: target language, enable/disable per chat type.
-- [ ] Tooling: `.luacheckrc`, `.stylua.toml`, busted harness with WoW stubs, CI.
+### M1 — Skeleton **(CURRENT)**
+Started 2026-10-11 with user confirmation; M0's grouped dungeon lockdown check
+runs alongside whenever a second player is available.
+- [x] Addon folder, Retail TOC, namespace bootstrap, event dispatcher.
+- [x] Compat layer stub with flavor detection.
+- [x] SavedVariables with defaults and migrations; slash command `/ct`.
+- [x] Settings panel: target language, enable/disable per chat type.
+      *In-game check pending (`tests/ingame/CHECKLIST.md`, M1).*
+- [x] Tooling: `.luacheckrc`, `.stylua.toml`, busted harness with WoW stubs, CI.
+      *CI workflow not yet run on GitHub.*
 
 ### M2 — Text foundations
 - [ ] UTF-8 helpers (iterate codepoints, length, safe truncate).

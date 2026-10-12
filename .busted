@@ -1,0 +1,11 @@
+return {
+    _all = {
+        lua = "lua5.1",
+        helper = "tests/helpers/setup.lua",
+    },
+    default = {
+        ROOT = { "tests/unit", "tests/integration" },
+        pattern = "_spec",
+        verbose = true,
+    },
+}
