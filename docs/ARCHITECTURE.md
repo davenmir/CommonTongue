@@ -237,6 +237,12 @@ differs per flavor (dungeon names, roles) is tagged with a `flavors` field.
    in-game on build 120100 (2026-10-11); open-world SAY/WHISPER/CHANNEL text is
    readable outside lockdown. Rewriting across all target events and group
    chat types still pending.
-4. Memory/load cost of the data packs at target size — requires an in-game
-   measurement.
+4. Memory/load cost of the data packs — measured on build 120100 (2026-10-11):
+   a 1.1 MB synthetic pack (6,000 phrases, 18,000 patterns) took 545 ms to
+   load and ~4.6 MB of memory (≈4× file size); building a first-token index
+   took 6 ms and 650 KB. Consequences for M3: load only the languages the user
+   needs (target + enabled source languages), never all packs; load at login or
+   out of combat, never mid-fight, since a half-second load freezes the client;
+   keep per-language packs well under 1 MB. Whether packs become separate
+   load-on-demand addons is an M3 ADR.
 5. Library choice — decided, ADR-0004 accepted.

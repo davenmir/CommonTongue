@@ -97,8 +97,8 @@ recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
       throttling, and which chat types accept addon messages (PARTY, RAID,
       INSTANCE_CHAT, GUILD, WHISPER, CHANNEL, SAY/YELL restrictions).
       *From documentation, see `ARCHITECTURE.md` §6.*
-- [ ] Measure memory and load-time cost of a ~1 MB Lua data table.
-      *In-game only.*
+- [x] Measure memory and load-time cost of a ~1 MB Lua data table.
+      *545 ms, ~4.6 MB; see `ARCHITECTURE.md` §9.*
 - [x] Decide embedded library set (ADR-0004).
 
 ### M1 — Skeleton
