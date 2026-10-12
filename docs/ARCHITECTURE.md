@@ -35,6 +35,16 @@ Documented (warcraft.wiki.gg "Secret Values", "CHAT_MSG_PARTY",
 - Consequence: `UI/ChatFilter.lua` must check `issecretvalue(text)` before any
   string operation and pass the line through untouched. Tiers 1–3 are all
   unavailable for that line; the composer must disable sending.
+- Change signal: `ADDON_RESTRICTION_STATE_CHANGED` fires with
+  `(restrictionType, state)`; chat lockdown observed as type `5`, state `1`
+  on / `0` off. `ns.Compat` exposes this so the composer and settings UI can
+  update without polling.
+
+Verified in-game on build 120100 (2026-10-11) with the
+`addonChatRestrictionsForced` CVar: lockdown detection, secret SAY text,
+pass-through without errors, and `AddOnMessageLockdown` send results all behave
+as documented. Note that group chat types return `NotInGroup` before the
+lockdown result when solo.
 
 > UNVERIFIED: when lockdown applies. Blizzard's Oct 2025 alpha notes say only
 > while a keystone run, PvP match, or instance encounter is in progress. The

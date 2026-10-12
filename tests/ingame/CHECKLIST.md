@@ -14,6 +14,8 @@ outcome, notes. Items here cannot be verified by agents.
 | 2026-10-11 | 120100 | Retail | Chat filter rewrite (SAY) | Marker shown in ChatFrame1 |
 | 2026-10-11 | 120100 | Retail | Chat filter rewrite (other types) | User-reported: marker shown on the other chat types tried, with EllesmereUIChat on. Group chat (party/raid/instance) not yet exercised |
 | 2026-10-11 | 120100 | Retail | EllesmereUIChat interaction | With EllesmereUIChat on, `/played` shows raw `\|4day:days;` grammar escapes; disabling it fixes this. Not caused by CTSpike (system messages are not filtered). Filter output is honored: SAY marker shown with it on and off, other chat types with it on |
+| 2026-10-11 | 120100 | Retail | Forced chat lockdown (`addonChatRestrictionsForced 1`) | Setting fires `ADDON_RESTRICTION_STATE_CHANGED` with args `5, 1` (clearing: `5, 0`). `InChatMessagingLockdown()` = true; SAY text arrives secret; filter passes it through untouched with no Lua errors. Reproduced 3 times |
+| 2026-10-11 | 120100 | Retail | Addon sends under forced lockdown | GUILD, WHISPER → `AddOnMessageLockdown`. PARTY/RAID/INSTANCE_CHAT → `NotInGroup` (group check runs before the lockdown check) |
 | 2026-10-11 | 120100 | Retail | Open-world chat readable | SAY, WHISPER, WHISPER_INFORM, CHANNEL: `textSecret=false`, `lockdown=false` (open world, maps 2393/2395/2537) |
 
 Tooling: the `CTSpike` test addon automates these checks.

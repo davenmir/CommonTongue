@@ -87,12 +87,13 @@ Goal: confirm the platform facts the design depends on. Output is findings
 recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
 - [ ] Confirm chat message filtering/rewriting via `ChatFrame_AddMessageEventFilter`
       (or its current Retail equivalent) works for all target chat events.
-      *API identified from documentation (`ChatFrameUtil.AddMessageEventFilter`);
-      in-game check pending.*
+      *`ChatFrameUtil.AddMessageEventFilter` verified in-game on all solo chat
+      types, including with EllesmereUIChat; group chat types pending.*
 - [ ] Determine Retail "secret value" restrictions on chat message contents
       (which contexts, which events) and how to detect them.
-      *Events and detection documented; whether lockdown covers entire
-      dungeon/raid maps needs an in-game check.*
+      *Detection and safe pass-through verified in-game (forced lockdown);
+      whether lockdown covers entire dungeon/raid maps still needs a grouped
+      in-game check.*
 - [x] Confirm addon message limits on Retail: prefix length, payload size,
       throttling, and which chat types accept addon messages (PARTY, RAID,
       INSTANCE_CHAT, GUILD, WHISPER, CHANNEL, SAY/YELL restrictions).
