@@ -17,8 +17,20 @@ local function findToken(tokens, lit, first, last)
     end
 end
 
-local function matchParts(tokens, parts, catalogEntry)
-    local i = 1
+local function allSkip(tokens, first, last)
+    if first > last then
+        return true
+    end
+    for i = first, last do
+        if not ns.Params.IsSkip(tokens[i]) then
+            return false
+        end
+    end
+    return true
+end
+
+local function matchParts(tokens, parts, catalogEntry, start)
+    local i = start
     local n = #tokens
     local params = {}
     for p = 1, #parts do
@@ -50,17 +62,17 @@ local function matchParts(tokens, parts, catalogEntry)
             i = nextI
         end
     end
-    if i ~= n + 1 then
+    if i <= n and not allSkip(tokens, i, n) then
         return nil
     end
     return params
 end
 
-local function tryIndex(index, tokens, catalog)
-    if #tokens == 0 then
+local function tryAt(index, tokens, catalog, start)
+    if start > #tokens then
         return nil
     end
-    local buckets = { index.byFirst[tokens[1]], index.startsWithSlot }
+    local buckets = { index.byFirst[tokens[start]], index.startsWithSlot }
     for b = 1, #buckets do
         local list = buckets[b]
         if list then
@@ -68,12 +80,24 @@ local function tryIndex(index, tokens, catalog)
                 local entry = list[e]
                 local def = catalog[entry.id]
                 if def then
-                    local params = matchParts(tokens, entry.parts, def)
-                    if params then
+                    local params = matchParts(tokens, entry.parts, def, start)
+                    if params and allSkip(tokens, 1, start - 1) then
                         return { id = entry.id, params = params, pattern = entry.pattern }
                     end
                 end
             end
+        end
+    end
+end
+
+local function tryIndex(index, tokens, catalog)
+    if #tokens == 0 then
+        return nil
+    end
+    for start = 1, #tokens do
+        local hit = tryAt(index, tokens, catalog, start)
+        if hit then
+            return hit
         end
     end
 end
@@ -126,6 +150,14 @@ function Phrase.Render(id, params, locale)
             return "{" .. slot .. "}"
         end
         return ns.Params.Format(typeName, value, locale)
+    end)
+    text = text:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+    -- Empty activity leaves a dangling preposition: "LFM tank for".
+    text = text:gsub(" (%S+)$", function(word)
+        if word == "for" or word == "für" or word == "para" then
+            return ""
+        end
+        return " " .. word
     end)
     return text, pack.reviewed == true
 end

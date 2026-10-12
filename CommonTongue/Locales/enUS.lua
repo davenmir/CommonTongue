@@ -38,6 +38,37 @@ L["[%s→%s]"] = true
 L["[%s]"] = true
 L["(unreviewed)"] = true
 L["Original"] = true
+L["[CT→%s]"] = true
+L["CommonTongue protocol"] = true
+L["Exact translations between players who both run CommonTongue."] = true
+L["Works in party, raid, guild, and whisper."] = true
+L["/ct compose - open the phrase composer"] = true
+L["/ct peers - list CommonTongue users seen this session"] = true
+L["No CommonTongue users seen yet."] = true
+L["%s (%s)"] = true
+L["Courtesy"] = true
+L["Looking for group"] = true
+L["Combat"] = true
+L["Trade"] = true
+L["Roles (tank, healer, dps)"] = true
+L["Switch to"] = true
+L["Switch from"] = true
+L["Activity"] = true
+L["Seconds"] = true
+L["Item link"] = true
+L["Price"] = true
+L["CommonTongue phrases"] = true
+L["Phrase"] = true
+L["Send to"] = true
+L["Whisper target"] = true
+L["Send"] = true
+L["Pick a phrase first."] = true
+L["Fill in %s."] = true
+L["Sent."] = true
+L["Chat lockdown: CommonTongue can't send right now."] = true
+L["Couldn't send."] = true
+L["Composer UI isn't available."] = true
+L["Pick a phrase, then Send."] = true
 
 for key, value in pairs(L) do
     if value == true then

@@ -85,4 +85,43 @@ describe("Phrase", function()
     it("returns nil for uncovered free text", function()
         assert.is_nil(match("what a beautiful sunset tonight", "enUS"))
     end)
+
+    it("matches conversational role lines with wrappers and punctuation", function()
+        local switch = match("hi can you dps instead of healing?", "enUS")
+        assert.are.equal("SWITCH_ROLE", switch.id)
+        assert.are.same({ "dps" }, switch.params.to)
+        assert.are.same({ "healer" }, switch.params.from)
+        assert.are.equal(
+            "kannst du DPS statt Heiler",
+            Phrase.Render(switch.id, switch.params, "deDE")
+        )
+
+        local heal = match("I heal", "enUS")
+        assert.are.equal("I_AM_ROLE", heal.id)
+        assert.are.same({ "healer" }, heal.params.roles)
+        assert.are.equal("Ich bin Heiler", Phrase.Render(heal.id, heal.params, "deDE"))
+
+        local am = match("i am a healer", "enUS")
+        assert.are.equal("I_AM_ROLE", am.id)
+        assert.are.same({ "healer" }, am.params.roles)
+
+        local im = match("I'm a tank", "enUS")
+        assert.are.equal("I_AM_ROLE", im.id)
+        assert.are.same({ "tank" }, im.params.roles)
+    end)
+
+    it("matches informal LFM variants and ignores courtesy leftovers", function()
+        local a = match("looking for a healer", "enUS")
+        assert.are.equal("LFM_ROLES", a.id)
+        assert.are.same({ "healer" }, a.params.roles)
+        assert.are.equal("LFM healer", Phrase.Render(a.id, a.params, "enUS"))
+
+        local need = match("need a tank thanks", "enUS")
+        assert.are.equal("LFM_ROLES", need.id)
+        assert.are.same({ "tank" }, need.params.roles)
+
+        local play = match("can you heal", "enUS")
+        assert.are.equal("PLAY_ROLE", play.id)
+        assert.are.same({ "healer" }, play.params.roles)
+    end)
 end)

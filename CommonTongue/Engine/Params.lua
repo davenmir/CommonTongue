@@ -4,19 +4,32 @@ local Params = ns:NewModule("Params")
 local ROLE_ALIAS = {
     tank = "tank",
     tanks = "tank",
+    tanking = "tank",
     tanque = "tank",
     tanques = "tank",
     healer = "healer",
     heal = "healer",
+    heals = "healer",
+    healing = "healer",
     healers = "healer",
     heiler = "healer",
+    heile = "healer",
+    heilung = "healer",
     sanador = "healer",
     sanadores = "healer",
+    sanando = "healer",
+    curo = "healer",
+    cura = "healer",
     healz = "healer",
     hps = "healer",
     dps = "dps",
     dd = "dps",
     damage = "dps",
+    dpsing = "dps",
+    melee = "dps",
+    ranged = "dps",
+    mdps = "dps",
+    rdps = "dps",
 }
 
 local CONNECTOR = {
@@ -25,10 +38,65 @@ local CONNECTOR = {
     et = true,
     und = true,
     ["and"] = true,
+    a = true,
+    an = true,
+    the = true,
+    ein = true,
+    eine = true,
+    einen = true,
+    un = true,
+    una = true,
+    el = true,
+    la = true,
     ["/"] = true,
     [","] = true,
     ["+"] = true,
     ["&"] = true,
+}
+
+-- Greetings, fillers, and courtesy that may wrap a real phrase ("hi can you …").
+-- Never include role words or verbs that start a pattern (need, looking, can).
+local SKIP = {
+    hi = true,
+    hey = true,
+    hello = true,
+    yo = true,
+    sup = true,
+    hola = true,
+    hallo = true,
+    moin = true,
+    please = true,
+    pls = true,
+    plz = true,
+    bitte = true,
+    thanks = true,
+    ty = true,
+    thx = true,
+    danke = true,
+    gracias = true,
+    just = true,
+    so = true,
+    um = true,
+    uh = true,
+    well = true,
+    ok = true,
+    okay = true,
+    yea = true,
+    yeah = true,
+    yup = true,
+    yep = true,
+    bro = true,
+    dude = true,
+    mate = true,
+    actually = true,
+    sorry = true,
+    lol = true,
+    lmao = true,
+    haha = true,
+    gl = true,
+    glhf = true,
+    hmm = true,
+    also = true,
 }
 
 local ROLE_RENDER = {
@@ -126,14 +194,24 @@ local function parseLink(tokens, first, last)
 end
 
 local function parseActivity(tokens, first, last)
+    while last >= first and SKIP[tokens[last]] do
+        last = last - 1
+    end
     if first > last then
-        return nil
+        return "", first
     end
     local parts = {}
     for i = first, last do
         parts[#parts + 1] = tokens[i]
     end
     return table.concat(parts, " "), last + 1
+end
+
+--- Tokens that may sit before/after a matched phrase without changing its meaning.
+---@param token string
+---@return boolean
+function Params.IsSkip(token)
+    return SKIP[token] == true
 end
 
 local PARSERS = {

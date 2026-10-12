@@ -99,7 +99,13 @@ function Normalize.Run(text)
 
     local tokens = {}
     for word in s:gmatch("%S+") do
-        tokens[#tokens + 1] = word
+        -- "i'm" → "im"; "healing?" → "healing". Keep "+10" and {l1}.
+        word = word:gsub("'", "")
+        word = word:gsub("^[¿¡]+", "")
+        word = word:gsub("[?!.,;:]+$", "")
+        if word ~= "" then
+            tokens[#tokens + 1] = word
+        end
     end
 
     return {

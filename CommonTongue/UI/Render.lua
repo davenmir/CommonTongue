@@ -42,6 +42,19 @@ function Render.ShortCode(code)
     return SHORT[code] or (code and code:sub(1, 2):lower()) or "?"
 end
 
+--- Exact protocol translation from another CommonTongue user.
+---@return string
+function Render.Protocol(translated, original, targetLang, reviewed)
+    local id = remember(original)
+    local tag = L["[CT→%s]"]:format(Render.ShortCode(targetLang))
+    local hover = "|H" .. LINK_TYPE .. ":" .. LINK_PREFIX .. ":" .. id .. "|h" .. translated .. "|h"
+    local line = "|cffffcc66" .. tag .. "|r " .. hover
+    if reviewed == false then
+        line = line .. " |cff666666" .. L["(unreviewed)"] .. "|r"
+    end
+    return line
+end
+
 --- Phrase translation: language tag + hoverable rendered text.
 ---@return string
 function Render.Phrase(translated, original, sourceLang, targetLang, reviewed)

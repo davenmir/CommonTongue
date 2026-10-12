@@ -8,8 +8,9 @@ M.ADDON_NAME = "CommonTongue"
 M.ADDON_DIR = "CommonTongue/"
 M.TOC = M.ADDON_DIR .. "CommonTongue_Mainline.toc"
 
--- UI libraries need a real client; tests replace them with fakes.
+-- UI / comm libraries need a real client; tests replace them with fakes.
 local FAKED_LIBS = {
+    ["Libs/Ace3/AceComm-3.0/AceComm-3.0.xml"] = true,
     ["Libs/Ace3/AceGUI-3.0/AceGUI-3.0.xml"] = true,
     ["Libs/Ace3/AceConfig-3.0/AceConfig-3.0.xml"] = true,
 }
@@ -70,7 +71,9 @@ function M.load(opts)
 
     for _, file in ipairs(opts.files or M.tocFiles()) do
         if FAKED_LIBS[file] then
-            if not fakesInstalled then
+            if file:find("AceComm", 1, true) then
+                stubs.installAceCommFake(state)
+            elseif not fakesInstalled then
                 stubs.installAceConfigFakes(state)
                 fakesInstalled = true
             end

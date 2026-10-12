@@ -18,6 +18,9 @@ ns.Data.RegisterPhrases({
     PULL_IN = { params = { seconds = "number" } },
     LFM_ROLES = { params = { roles = "roleList", activity = "activity" } },
     LFG_ACTIVITY = { params = { activity = "activity" } },
+    I_AM_ROLE = { params = { roles = "roleList" } },
+    PLAY_ROLE = { params = { roles = "roleList" } },
+    SWITCH_ROLE = { params = { to = "roleList", from = "roleList" } },
     WTS_ITEM_PRICE = { params = { item = "link", price = "gold" } },
     WTB_ITEM = { params = { item = "link" } },
 })

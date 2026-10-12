@@ -26,10 +26,41 @@ ns.Data.RegisterLanguage("deDE", {
             match = {
                 "suche {roles} für {activity}",
                 "suche {roles} {activity}",
+                "suche einen {roles} {activity}",
                 "lfm {roles} {activity}",
                 "lfm {roles} für {activity}",
+                "brauche {roles} {activity}",
+                "brauche {roles} für {activity}",
             },
             render = "Suche {roles} für {activity}",
+        },
+        I_AM_ROLE = {
+            match = {
+                "ich bin {roles}",
+                "ich bin ein {roles}",
+                "ich {roles}",
+                "i am {roles}",
+                "i {roles}",
+            },
+            render = "Ich bin {roles}",
+        },
+        PLAY_ROLE = {
+            match = {
+                "kannst du {roles}",
+                "kannst du {roles} spielen",
+                "can you {roles}",
+                "geh {roles}",
+            },
+            render = "kannst du {roles}",
+        },
+        SWITCH_ROLE = {
+            match = {
+                "kannst du {to} statt {from}",
+                "kannst du {to} anstatt {from}",
+                "{to} statt {from}",
+                "can you {to} instead of {from}",
+            },
+            render = "kannst du {to} statt {from}",
         },
         LFG_ACTIVITY = {
             match = { "lfg {activity}", "suche gruppe {activity}" },

@@ -109,6 +109,9 @@ local pairs, type, strfind = pairs, type, string.find
 - One language per folder: `Data/<locale>/Phrases.lua`, `Data/<locale>/Gloss.lua`.
 - Patterns lowercase; the normalizer lowercases and strips Latin diacritics
   (`adiós` and `adios` match the same). Keep accents in `render` strings.
+- The matcher may ignore wrapper tokens listed in `Params.IsSkip` (greetings,
+  courtesy). Do not put role words or phrase-starting verbs (`need`, `can`)
+  on that list. Prefer a new pattern over a looser skip.
 - Every pack declares `reviewed = true|false`. Agents set `false`.
 - Run `tools/validate_data.lua` after any data change.
 
@@ -125,4 +128,4 @@ Append entries here as they are discovered: `- <API/behavior> — <why it matter
 - Retail chat filters are registered via `ChatFrameUtil.AddMessageEventFilter`;
   the `ChatFrame_*` global is a deprecated alias — go through `ns.Compat`.
 - `C_ChatInfo.SendChatMessage` on SAY/YELL/CHANNEL requires a hardware event —
-  only send from a click/keypress handler.
+  only send from a click/keypress handler (`UI/Composer.lua` Send button).

@@ -23,8 +23,9 @@ checklist item and be flagged as pending verification.
   ...)` drives events; `state.errors`, `state.printed`, `state.filters` record
   effects; `state.inCombat`, `state.lockdown`, `state.locale` control the client.
 - Real LibStub, CallbackHandler and AceDB are loaded from `CommonTongue/Libs`.
-  AceGUI and AceConfig need a real client, so the loader replaces them with
-  fakes that record the registered options table.
+  AceGUI, AceConfig and AceComm need a real client (or ChatThrottleLib), so the
+  loader replaces them with fakes that record options, widgets, and sent
+  comms (`state.comms`, `state.receiveComm`).
 - Secret values: the stub provides `issecretvalue` and a way to mark a test
   string as secret, so specs can assert the chat filter passes it through
   without touching it.

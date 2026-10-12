@@ -3,6 +3,24 @@
 Record each result as: date, build (`/dump select(4, GetBuildInfo())`), flavor,
 outcome, notes. Items here cannot be verified by agents.
 
+## M4 — Protocol and composer (Retail)
+
+Needs two clients for the exact-translation checks. Solo items work with
+`/ct self` in a party (or a whisper to a friend).
+
+- [ ] `/ct compose` opens the phrase window. Click **Send** on THANKS in SAY:
+      the visible line is your client language. Hover still unused for SAY
+      (no addon channel). BugSack empty.
+- [ ] In a party, Send THANKS: the other CommonTongue user sees `[CT→…]` in
+      their target language, hover shows your original. A player without the
+      addon sees your client-language text.
+- [ ] `/ct peers` lists the other user after they are grouped with you.
+- [ ] Whisper a parameterized LFM_ROLES line (tank + healer, +10) to a second
+      CommonTongue user: roles and activity render in their language.
+- [ ] Force lockdown (`addonChatRestrictionsForced 1`): composer status says
+      it can't send; no Lua errors.
+- [ ] `/ct compose` in combat prints that it can't open.
+
 ## M3 — Phrase engine (Retail)
 
 Requires M1 setup. Turn on **Translate my own messages** (`/ct self`) so you

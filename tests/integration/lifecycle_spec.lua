@@ -69,6 +69,12 @@ describe("addon lifecycle", function()
         it("prints help for unknown commands", function()
             run("nonsense")
             assert.truthy(printedText(state):find("/ct version", 1, true))
+            assert.truthy(printedText(state):find("/ct compose", 1, true))
+        end)
+
+        it("lists no peers until a hello arrives", function()
+            run("peers")
+            assert.truthy(printedText(state):find("No CommonTongue users seen yet.", 1, true))
         end)
     end)
 

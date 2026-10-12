@@ -73,9 +73,23 @@ function ChatFilter.Process(text, author, event)
         return nil
     end
 
+    local target = targetLanguage()
+    if profile.protocol ~= false and ns.Correlate then
+        local proto = ns.Correlate.Take(author, text)
+        if proto and proto.kind == ns.Protocol.KIND_PHRASE then
+            local rendered, reviewed = ns.Phrase.Render(proto.id, proto.params, target)
+            if rendered then
+                local norm = ns.Normalize.Run(text)
+                rendered = ns.Normalize.Restore(rendered, norm.placeholders)
+                if rendered ~= text then
+                    return ns.Render.Protocol(rendered, text, target, reviewed)
+                end
+            end
+        end
+    end
+
     local norm = ns.Normalize.Run(text)
     local lang, confidence = ns.Detect.Identify(norm.normalized, norm.tokens)
-    local target = targetLanguage()
     if lang and lang == target and confidence >= MIN_DETECT then
         return nil
     end

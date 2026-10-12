@@ -21,6 +21,7 @@ globals = {
 }
 
 read_globals = {
+    "Ambiguate",
     "C_AddOns",
     "C_ChatInfo",
     "C_SettingsUtil",
@@ -34,9 +35,14 @@ read_globals = {
     "GetBuildInfo",
     "GameTooltip",
     "GetLocale",
+    "GetTime",
     "InCombatLockdown",
+    "IsInGroup",
+    "IsInRaid",
     "IsLoggedIn",
+    "LE_PARTY_CATEGORY_INSTANCE",
     "LibStub",
+    "SendChatMessage",
     "SetItemRef",
     "UIParent",
     "UnitName",

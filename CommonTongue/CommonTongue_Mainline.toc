@@ -1,12 +1,13 @@
 ## Interface: 120100, 120105
 ## Title: CommonTongue
 ## Notes: Understand and be understood in chat across languages.
-## Version: 0.3.0-dev
+## Version: 0.4.0-dev
 ## SavedVariables: CommonTongueDB
 
 Libs\Ace3\LibStub\LibStub.lua
 Libs\Ace3\CallbackHandler-1.0\CallbackHandler-1.0.xml
 Libs\Ace3\AceDB-3.0\AceDB-3.0.xml
+Libs\Ace3\AceComm-3.0\AceComm-3.0.xml
 Libs\Ace3\AceGUI-3.0\AceGUI-3.0.xml
 Libs\Ace3\AceConfig-3.0\AceConfig-3.0.xml
 
@@ -31,7 +32,13 @@ Data\enUS\Phrases.lua
 Data\deDE\Phrases.lua
 Data\esES\Phrases.lua
 
+Comm\Protocol.lua
+Comm\Correlate.lua
+Comm\Transport.lua
+Comm\Discovery.lua
+
 UI\Render.lua
+UI\Composer.lua
 UI\ChatFilter.lua
 UI\Settings.lua
 UI\Slash.lua

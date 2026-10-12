@@ -25,6 +25,17 @@ describe("ChatFilter", function()
         assert.truthy(out:find("[de→en]", 1, true))
     end)
 
+    it("rewrites a wrapped role-switch line", function()
+        ns.DB:Profile().targetLanguage = "deDE"
+        local out = ns.ChatFilter.Process(
+            "hi can you dps instead of healing?",
+            "Other",
+            "CHAT_MSG_SAY"
+        )
+        assert.truthy(out)
+        assert.truthy(out:find("kannst du DPS statt Heiler", 1, true))
+    end)
+
     it("leaves same-language chat alone", function()
         local line = "looking for tank and healer for the key"
         assert.is_nil(ns.ChatFilter.Process(line, "Other", "CHAT_MSG_SAY"))
@@ -58,6 +69,19 @@ describe("ChatFilter", function()
         assert.truthy(out:find(line, 1, true))
         assert.truthy(out:find("[de]", 1, true))
         assert.is_nil(out:find("→", 1, true))
+    end)
+
+    it("prefers a correlated protocol payload over phrase matching", function()
+        local visible = "thanks"
+        ns.Correlate.Put(
+            "Other",
+            ns.Protocol.Decode(ns.Protocol.EncodePhrase("THANKS", {}, visible))
+        )
+        ns.DB:Profile().targetLanguage = "deDE"
+        local out = ns.ChatFilter.Process(visible, "Other", "CHAT_MSG_PARTY")
+        assert.truthy(out:find("Danke", 1, true))
+        assert.truthy(out:find("[CT→de]", 1, true))
+        assert.is_nil(out:find("[en→de]", 1, true))
     end)
 
     it("registers a filter that rewrites and caches by lineID", function()

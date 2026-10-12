@@ -100,6 +100,65 @@ function Compat.PlayerName()
     return unitName("player")
 end
 
+---@return number
+function Compat.GetTime()
+    local getTime = _G.GetTime
+    if getTime then
+        return getTime()
+    end
+    return 0
+end
+
+--- Name without realm, for matching chat authors to addon-message senders.
+---@param name string|nil
+---@return string|nil
+function Compat.ShortName(name)
+    if type(name) ~= "string" or name == "" then
+        return nil
+    end
+    local ambiguate = _G.Ambiguate
+    if ambiguate then
+        return ambiguate(name, "short")
+    end
+    return name:match("^([^%-]+)") or name
+end
+
+--- PARTY, RAID, or INSTANCE_CHAT when grouped; nil when solo.
+---@return string|nil
+function Compat.GroupDistribution()
+    local isInGroup = _G.IsInGroup
+    if not isInGroup or not isInGroup() then
+        return nil
+    end
+    local instanceCat = _G.LE_PARTY_CATEGORY_INSTANCE
+    if instanceCat and isInGroup(instanceCat) then
+        return "INSTANCE_CHAT"
+    end
+    local isInRaid = _G.IsInRaid
+    if isInRaid and isInRaid() then
+        return "RAID"
+    end
+    return "PARTY"
+end
+
+--- Sends visible chat. SAY/YELL/CHANNEL need a hardware event (click/keypress).
+---@param text string
+---@param chatType string
+---@param target string|nil
+---@return boolean
+function Compat.SendChatMessage(text, chatType, target)
+    if Compat.InChatLockdown() then
+        return false
+    end
+    local chatInfo = _G.C_ChatInfo
+    local api = chatInfo and chatInfo.SendChatMessage or _G.SendChatMessage
+    if not api then
+        return false
+    end
+    api(text, chatType, nil, target)
+    return true
+end
+
 --- True when author is this character. Secret authors are treated as not-self.
 ---@param author string|nil
 ---@return boolean

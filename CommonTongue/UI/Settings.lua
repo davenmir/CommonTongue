@@ -110,6 +110,21 @@ function SettingsPanel.BuildOptions()
                     profile().translateSelf = value
                 end,
             },
+            protocol = {
+                type = "toggle",
+                order = 2.6,
+                width = "full",
+                name = L["CommonTongue protocol"],
+                desc = L["Exact translations between players who both run CommonTongue."]
+                    .. " "
+                    .. L["Works in party, raid, guild, and whisper."],
+                get = function()
+                    return profile().protocol
+                end,
+                set = function(_, value)
+                    profile().protocol = value
+                end,
+            },
             chatTypes = {
                 type = "group",
                 inline = true,

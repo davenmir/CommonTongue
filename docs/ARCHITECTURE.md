@@ -1,6 +1,6 @@
 # CommonTongue — Architecture
 
-Status: draft through M3. Sections that depend on unverified platform facts
+Status: draft through M4. Sections that depend on unverified platform facts
 are marked `> UNVERIFIED:`.
 
 ## 1. Platform constraints
@@ -179,6 +179,12 @@ Parameter types (`roleList`, `gold`, `number`, `link`, `activity`, ...) have
 per-language parsers and formatters in `Engine/Params.lua`. Item/spell/quest
 links are never translated; the client renders them in the reader's locale.
 
+The matcher does not require the whole line to equal a pattern. Greetings and
+courtesy leftovers (`hi`, `thanks`, `please`) may wrap a hit, role words accept
+inflected aliases (`heal` / `healing` / `healer`), and longer patterns win so
+`can you dps instead of healing` is a role switch, not a bare "can you {role}".
+Uncovered free text still falls through to a language tag, never a guess.
+
 Data packs are loaded at startup but indexes (e.g. first-token lookup tables)
 are built lazily on first use per language to keep login time low.
 
@@ -192,14 +198,19 @@ are built lazily on first use per language to keep login time low.
 
 ## 6. CommonTongue protocol (Tier 1)
 
-Detailed wire format requires an ADR in M4. Design intent:
+Wire format is ADR-0006. Summary:
 
 - Prefix: `CTongue` (≤ 16 chars).
-- Message: `<version>|<phraseId>|<k=v;k=v>|<corr>` where `corr` is a short hash
-  of the visible chat text, used by `Comm/Correlate.lua` to attach the payload
-  to the matching chat line from the same sender within a short time window.
+- Phrase: `1|P|<phraseId>|<k=v;k=v>|<corr>` where `corr` is a djb2-32 hex digest
+  of the exact visible chat string. `Comm/Correlate.lua` matches
+  `(short sender name, corr)` within 3 seconds.
+- Hello: `1|H|<addonVersion>` for peer discovery (`Comm/Discovery.lua`).
 - Unknown versions or phrase IDs fall back silently to Tier 2/3.
-- Channels: group, raid, instance, guild, whisper.
+- Composer sends the addon message first (when the chat type allows it), then
+  the visible line, and locally echoes the payload so `/ct self` can test
+  Tier 1 without a second client.
+- Channels: group, raid, instance, guild, whisper. SAY / YELL / public CHANNEL
+  have no addon channel; those lines stay Tier 2.
 
 Documented limits (warcraft.wiki.gg "C_ChatInfo.SendAddonMessage", retrieved
 2026-10-11):

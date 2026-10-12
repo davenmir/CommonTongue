@@ -41,12 +41,35 @@ commands.self = function()
     end
 end
 
+commands.compose = function()
+    ns.Composer:Open()
+end
+
+commands.peers = function()
+    local names = {}
+    for name in pairs(ns.Discovery.Peers()) do
+        names[#names + 1] = name
+    end
+    table.sort(names)
+    if #names == 0 then
+        ns:Print(L["No CommonTongue users seen yet."])
+        return
+    end
+    for i = 1, #names do
+        local peer = ns.Discovery.Get(names[i])
+        local version = peer and peer.version or "?"
+        ns:Print(L["%s (%s)"]:format(names[i], version))
+    end
+end
+
 commands.help = function()
     ns:Print(L["Commands:"])
     ns:Print(L["/ct - open settings"])
     ns:Print(L["/ct version - show version"])
     ns:Print(L["/ct debug - toggle debug mode"])
     ns:Print(L["/ct self - toggle translating your own messages"])
+    ns:Print(L["/ct compose - open the phrase composer"])
+    ns:Print(L["/ct peers - list CommonTongue users seen this session"])
 end
 
 ---@param input string|nil

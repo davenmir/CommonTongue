@@ -95,6 +95,16 @@ function Data.Index(code)
             end
         end
     end
+    local function longerFirst(a, b)
+        if #a.parts ~= #b.parts then
+            return #a.parts > #b.parts
+        end
+        return #a.pattern > #b.pattern
+    end
+    for _, bucket in pairs(index.byFirst) do
+        table.sort(bucket, longerFirst)
+    end
+    table.sort(index.startsWithSlot, longerFirst)
     indexes[code] = index
     return index
 end

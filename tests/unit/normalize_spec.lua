@@ -56,6 +56,12 @@ describe("Normalize", function()
         )
     end)
 
+    it("strips sentence punctuation and apostrophes from tokens", function()
+        assert.are.same({ "healing" }, Normalize.Run("healing?").tokens)
+        assert.are.same({ "im", "a", "tank" }, Normalize.Run("I'm a tank").tokens)
+        assert.are.same({ "+10" }, Normalize.Run("+10!").tokens)
+    end)
+
     it("handles Cyrillic, Hangul and Han", function()
         assert.are.equal("привет", Normalize.Run("Привет").normalized)
         assert.are.equal("탱커", Normalize.Run("탱커").normalized)

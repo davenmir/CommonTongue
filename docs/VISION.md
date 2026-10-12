@@ -75,7 +75,7 @@ send anything; it must say so rather than fail silently.
 
 enUS/enGB, deDE, esES, esMX, frFR, itIT, ptBR, ruRU, koKR, zhCN, zhTW.
 The first release ships English plus at least one other language pair, chosen
-in ADR-0005 (pending, M3).
+in ADR-0005 (enUS ↔ deDE; esES ships as an unreviewed extra).
 
 ## 7. Milestones
 
@@ -122,7 +122,7 @@ runs alongside whenever a second player is available.
 
 ### M3 — Phrase engine (Tier 2)
 Code complete 2026-10-12. In-game verification and native-speaker review
-pending. Do not start M4 without user confirmation.
+pending.
 - [x] Phrase data format and validator tool.
 - [x] Pattern matcher with parameter slots (role, number, gold amount, link).
 - [x] Renderer: phrase ID + params → target language string.
@@ -131,11 +131,14 @@ pending. Do not start M4 without user confirmation.
 - [x] First language pair data (ADR-0005), common LFG/trade/raid/courtesy phrases.
       *enUS reviewed; deDE and esES are agent drafts (`reviewed = false`).*
 
-### M4 — CommonTongue protocol (Tier 1) and composer
-- [ ] Wire format v1 and encoder/decoder (ADR required).
-- [ ] Correlate addon messages with visible chat lines.
-- [ ] Quick-phrase composer UI.
-- [ ] Peer capability discovery (who in group runs CommonTongue, which version).
+### M4 — CommonTongue protocol (Tier 1) and composer (CURRENT)
+Started 2026-10-12 after M3 merged to main. In-game two-client checks pending
+(`tests/ingame/CHECKLIST.md`, M4). Do not start M5 without user confirmation.
+- [x] Wire format v1 and encoder/decoder (ADR-0006).
+- [x] Correlate addon messages with visible chat lines.
+- [x] Quick-phrase composer UI.
+- [x] Peer capability discovery (who in group runs CommonTongue, which version).
+      *Unit-tested; live group announce and two-client render pending.*
 
 ### M5 — Gloss fallback (Tier 3)
 - [ ] Glossary data format, lookup, hover tooltip marked "approximate".

@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- Tier 1 CommonTongue protocol (ADR-0006): phrase IDs over addon messages,
+  correlated with the visible chat line, marked `[CT→…]`.
+- Phrase composer (`/ct compose`) to send catalog phrases from a click.
+- Peer discovery (`/ct peers`) for grouped CommonTongue users.
 - UTF-8 helpers: code-point iteration, length, safe truncate, script class,
   case-folding for Latin and Cyrillic.
 - Chat normalizer: strips colors, lifts links/textures into placeholders,
@@ -21,6 +25,11 @@ All notable changes to this project are documented here. The format follows
   marked.
 - `/ct self` and a settings toggle to translate your own messages for solo
   testing.
+
+### Changed
+
+- Phrase matching accepts conversational wrappers and role wording variants
+  (`I heal`, `hi can you dps instead of healing?`, `looking for a healer`).
 
 ### Fixed
 

@@ -63,6 +63,12 @@ function M.install(opts)
         loggedIn = false,
         inCombat = false,
         lockdown = false,
+        inGroup = false,
+        inRaid = false,
+        inInstanceGroup = false,
+        time = 100,
+        chatSent = {},
+        prefixes = {},
         secrets = setmetatable({}, { __mode = "k" }),
         metadata = { Version = "1.2.3" },
     }
@@ -161,9 +167,39 @@ function M.install(opts)
             return state.metadata[field]
         end,
     }
+    _G.GetTime = function()
+        return state.time
+    end
+    _G.Ambiguate = function(name, kind)
+        if kind == "short" or kind == "none" then
+            return name and name:match("^([^%-]+)") or name
+        end
+        return name
+    end
+    _G.IsInGroup = function(category)
+        if category == _G.LE_PARTY_CATEGORY_INSTANCE then
+            return state.inInstanceGroup
+        end
+        return state.inGroup or state.inRaid or state.inInstanceGroup
+    end
+    _G.IsInRaid = function()
+        return state.inRaid
+    end
+    _G.LE_PARTY_CATEGORY_INSTANCE = 2
     _G.C_ChatInfo = {
         InChatMessagingLockdown = function()
             return state.lockdown
+        end,
+        SendChatMessage = function(text, chatType, language, target)
+            state.chatSent[#state.chatSent + 1] = {
+                text = text,
+                chatType = chatType,
+                language = language,
+                target = target,
+            }
+        end,
+        RegisterAddonMessagePrefix = function(prefix)
+            state.prefixes[prefix] = true
         end,
     }
     _G.ChatFrameUtil = {
@@ -204,9 +240,127 @@ function M.install(opts)
     return state
 end
 
---- Registers fake AceConfig/AceConfigDialog with LibStub; they record calls on state.
+local function fakeWidget(typ, state)
+    local widget = {
+        type = typ,
+        children = {},
+        callbacks = {},
+        text = "",
+        shown = true,
+    }
+    function widget:SetTitle(value)
+        self.title = value
+    end
+    function widget:SetStatusText(value)
+        self.statusText = value
+    end
+    function widget:SetLayout(value)
+        self.layout = value
+    end
+    function widget:SetWidth(value)
+        self.width = value
+    end
+    function widget:SetHeight(value)
+        self.height = value
+    end
+    function widget:SetFullWidth()
+        self.fullWidth = true
+    end
+    function widget:SetLabel(value)
+        self.label = value
+    end
+    function widget:SetText(value)
+        self.text = value or ""
+    end
+    function widget:GetText()
+        return self.text or ""
+    end
+    function widget:SetList(value)
+        self.list = value
+    end
+    function widget:SetValue(value)
+        self.value = value
+    end
+    function widget:SetDisabled(value)
+        self.disabled = value and true or false
+    end
+    function widget:EnableResize() end
+    function widget:SetCallback(name, fn)
+        self.callbacks[name] = fn
+    end
+    function widget:AddChild(child)
+        self.children[#self.children + 1] = child
+    end
+    function widget:ReleaseChildren()
+        self.children = {}
+    end
+    function widget:Release()
+        self.released = true
+    end
+    function widget:Show()
+        self.shown = true
+    end
+    function widget:Hide()
+        self.shown = false
+    end
+    state.widgets = state.widgets or {}
+    state.widgets[#state.widgets + 1] = widget
+    return widget
+end
+
+--- Registers fake AceComm with LibStub; sends are recorded on state.comms.
+function M.installAceCommFake(state)
+    local LibStub = _G.LibStub
+    local comm = LibStub:NewLibrary("AceComm-3.0", 1)
+    if not comm then
+        return
+    end
+    state.comms = state.comms or {}
+    state.commHandlers = state.commHandlers or {}
+    function comm:Embed(target)
+        function target:RegisterComm(prefix, method)
+            state.commHandlers[prefix] = { target = target, method = method or "OnCommReceived" }
+            if _G.C_ChatInfo and _G.C_ChatInfo.RegisterAddonMessagePrefix then
+                _G.C_ChatInfo.RegisterAddonMessagePrefix(prefix)
+            end
+        end
+        function target:SendCommMessage(prefix, text, dist, dest, prio)
+            state.comms[#state.comms + 1] = {
+                prefix = prefix,
+                text = text,
+                dist = dist,
+                dest = dest,
+                prio = prio,
+            }
+        end
+        function target:UnregisterComm() end
+        function target:UnregisterAllComm() end
+        return target
+    end
+    function state.receiveComm(prefix, message, dist, sender)
+        local handler = state.commHandlers[prefix]
+        if not handler then
+            return
+        end
+        local fn = handler.method
+        if type(fn) == "string" then
+            fn = handler.target[fn]
+        end
+        if fn then
+            fn(handler.target, prefix, message, dist, sender)
+        end
+    end
+end
+
+--- Registers fake AceGUI/AceConfig/AceConfigDialog with LibStub; they record calls on state.
 function M.installAceConfigFakes(state)
     local LibStub = _G.LibStub
+    local gui = LibStub:NewLibrary("AceGUI-3.0", 1)
+    if gui then
+        function gui:Create(widgetType)
+            return fakeWidget(widgetType, state)
+        end
+    end
     local config = LibStub:NewLibrary("AceConfig-3.0", 1)
     function config:RegisterOptionsTable(app, options)
         state.optionsApp = app
