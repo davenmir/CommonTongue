@@ -78,8 +78,9 @@ Message event filters apply to every chat frame showing the event — all tabs,
 user-created windows, and pop-out whisper windows — so no per-window hooking is
 needed. Users can disable translation per chat type in settings.
 
-> UNVERIFIED: chat replacement addons (e.g. Chattynator, Glass, Prat) honor
-> message event filters. Check before claiming compatibility.
+> UNVERIFIED: chat replacement addons (e.g. EllesmereUIChat, Chattynator,
+> Glass, Prat) honor message event filters. Check before claiming
+> compatibility. EllesmereUIChat is in the developer's own test setup.
 
 Outgoing:
 
