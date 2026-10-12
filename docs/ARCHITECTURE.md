@@ -70,6 +70,17 @@ Incoming chat event (CHAT_MSG_*)
  Renderer (UI/Render.lua): rebuild line, restore links, apply markers
 ```
 
+Coverage: the filter is registered on every player-authored chat event (SAY,
+YELL, EMOTE, PARTY/RAID/INSTANCE incl. leader variants, RAID_WARNING, GUILD,
+OFFICER, WHISPER/BN_WHISPER incl. `_INFORM`, CHANNEL, COMMUNITIES_CHANNEL,
+AFK/DND auto-replies, VOICE_TEXT), defined in one list in `UI/ChatFilter.lua`.
+Message event filters apply to every chat frame showing the event — all tabs,
+user-created windows, and pop-out whisper windows — so no per-window hooking is
+needed. Users can disable translation per chat type in settings.
+
+> UNVERIFIED: chat replacement addons (e.g. Chattynator, Glass, Prat) honor
+> message event filters. Check before claiming compatibility.
+
 Outgoing:
 
 ```

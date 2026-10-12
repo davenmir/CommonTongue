@@ -29,7 +29,9 @@ Tooling: the `CTSpike` test addon automates these checks.
       SAY, YELL, PARTY, PARTY_LEADER, RAID, RAID_LEADER, INSTANCE_CHAT,
       INSTANCE_CHAT_LEADER, GUILD, OFFICER, WHISPER, BN_WHISPER and CHANNEL
       (Trade/General). The marker appears in every chat frame showing them.
-      *CTSpike: look for the marker.*
+      *CTSpike: look for the marker, then `/cts events` lists each chat type the
+      filter ran for and in which windows.* Also check: a newly created chat
+      tab, a pop-out whisper window, and EMOTE, COMMUNITIES_CHANNEL, BN whispers.
 - [ ] **lineID stability.** The same message shows the same `lineID` (arg 11)
       in every chat frame's filter call. *CTSpike: `/cts lines` with a channel
       shown in two chat tabs; expect `frames=` to list both.*

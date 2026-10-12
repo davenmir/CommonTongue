@@ -7,6 +7,7 @@ local MAX_LINES = 200
 local CHAT_EVENTS = {
     "CHAT_MSG_SAY",
     "CHAT_MSG_YELL",
+    "CHAT_MSG_EMOTE",
     "CHAT_MSG_PARTY",
     "CHAT_MSG_PARTY_LEADER",
     "CHAT_MSG_RAID",
@@ -19,7 +20,12 @@ local CHAT_EVENTS = {
     "CHAT_MSG_WHISPER",
     "CHAT_MSG_WHISPER_INFORM",
     "CHAT_MSG_BN_WHISPER",
+    "CHAT_MSG_BN_WHISPER_INFORM",
     "CHAT_MSG_CHANNEL",
+    "CHAT_MSG_COMMUNITIES_CHANNEL",
+    "CHAT_MSG_AFK",
+    "CHAT_MSG_DND",
+    "CHAT_MSG_VOICE_TEXT",
 }
 
 local CONTEXT_EVENTS = {
@@ -56,6 +62,8 @@ local SEND_RESULT = {
 local db
 local markersEnabled = true
 local lines, lineOrder = {}, {}
+local filterStats = {}
+local chatEventSet = {}
 local lastChatState = {}
 local lastLockdown
 local filterApi = "none"
@@ -147,6 +155,14 @@ local function rememberLine(lineID, event, frameName, secret)
     end
     rec.calls = rec.calls + 1
     rec.frames[frameName] = true
+
+    local stat = filterStats[event]
+    if not stat then
+        stat = { calls = 0, frames = {} }
+        filterStats[event] = stat
+    end
+    stat.calls = stat.calls + 1
+    stat.frames[frameName] = true
 end
 
 local function chatFilter(frame, event, text, author, ...)
@@ -286,6 +302,33 @@ local function printLines()
     log("lines", { count = #lineOrder })
 end
 
+local function frameList(set)
+    local names = {}
+    for name in pairs(set) do
+        names[#names + 1] = name
+    end
+    table.sort(names)
+    return table.concat(names, ",")
+end
+
+local function printEvents()
+    local registered, seen = 0, 0
+    local summary = {}
+    for _, event in ipairs(CHAT_EVENTS) do
+        if chatEventSet[event] then
+            registered = registered + 1
+        end
+        local stat = filterStats[event]
+        if stat then
+            seen = seen + 1
+            summary[event] = { calls = stat.calls, frames = frameList(stat.frames) }
+            out("%s calls=%d frames=%s", event, stat.calls, summary[event].frames)
+        end
+    end
+    out("filter registered on %d events; %d have fired so far", registered, seen)
+    log("events", { registered = registered, seen = seen, stats = summary })
+end
+
 local commands = {
     status = function()
         out("filter api: %s, markers: %s, log entries: %d", filterApi, tostring(markersEnabled), #db.log)
@@ -296,6 +339,7 @@ local commands = {
         out("markers %s", markersEnabled and "on" or "off")
     end,
     lines = printLines,
+    events = printEvents,
     addon = sendProbe,
     data = dataProbe,
     reset = function()
@@ -305,11 +349,10 @@ local commands = {
 }
 
 local function help()
-    out("/cts status | markers | lines | addon | data | reset")
+    out("/cts status | markers | lines | events | addon | data | reset")
 end
 
 local frame = CreateFrame("Frame")
-local chatEventSet = {}
 
 frame:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
