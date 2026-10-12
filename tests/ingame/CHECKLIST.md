@@ -5,6 +5,13 @@ outcome, notes. Items here cannot be verified by agents.
 
 ## M0 — Feasibility spike (Retail)
 
+### Results
+
+| Date | Build | Flavor | Check | Outcome |
+|---|---|---|---|---|
+| 2026-10-11 | 120100 | Retail | CTSpike loads; filter API | Loads cleanly; `ChatFrameUtil.AddMessageEventFilter` present |
+| 2026-10-11 | 120100 | Retail | Open-world chat readable | SAY, WHISPER, WHISPER_INFORM, CHANNEL: `textSecret=false`, `lockdown=false` (open world, maps 2393/2395/2537) |
+
 Tooling: the `CTSpike` test addon automates these checks.
 
 1. Run `spikes/make_data_pack.ps1` once (generates the ~1 MB data pack).

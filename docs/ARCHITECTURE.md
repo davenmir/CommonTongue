@@ -222,8 +222,10 @@ differs per flavor (dungeon names, roles) is tagged with a `flavors` field.
    (same signature); `ChatFrame_AddMessageEventFilter` survives only as an alias
    in `Blizzard_DeprecatedChatInfo`. `Core/Compat.lua` picks
    `ChatFrameUtil.AddMessageEventFilter` when present, else the legacy global
-   (source: wow-ui-source 12.0.0 `Deprecated_ChatFrame.lua`). In-game check of
-   rewriting across all target events pending.
+   (source: wow-ui-source 12.0.0 `Deprecated_ChatFrame.lua`). Confirmed present
+   in-game on build 120100 (2026-10-11); open-world SAY/WHISPER/CHANNEL text is
+   readable outside lockdown. Rewriting across all target events and group
+   chat types still pending.
 4. Memory/load cost of the data packs at target size — requires an in-game
    measurement.
 5. Library choice — decided, ADR-0004 accepted.
