@@ -80,7 +80,10 @@ needed. Users can disable translation per chat type in settings.
 
 > UNVERIFIED: chat replacement addons (e.g. EllesmereUIChat, Chattynator,
 > Glass, Prat) honor message event filters. Check before claiming
-> compatibility. EllesmereUIChat is in the developer's own test setup.
+> compatibility. EllesmereUIChat is in the developer's own test setup and is
+> confirmed to render chat text its own way: it leaves `|4singular:plural;`
+> grammar escapes unprocessed (seen in `/played`, build 120100), so it may also
+> bypass or alter filter output.
 
 Outgoing:
 
