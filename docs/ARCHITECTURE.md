@@ -99,7 +99,7 @@ Each file registers into the shared namespace: `local _, ns = ...`.
 | Gloss | `Engine/Gloss.lua` | Word lookup for approximate hints |
 | DataLoader | `Engine/Data.lua` | Registers language packs, lazy-builds indexes |
 | Protocol | `Comm/Protocol.lua` | Wire format encode/decode, versioning |
-| Transport | `Comm/Transport.lua` | Prefix registration, send/receive; delegates chunking and throttling to AceComm/ChatThrottleLib if ADR-0004 is accepted, otherwise owns them |
+| Transport | `Comm/Transport.lua` | Thin wrapper over AceComm (ADR-0004): prefix registration, send/receive, lockdown check; chunking and throttling are AceComm/ChatThrottleLib's job |
 | Correlate | `Comm/Correlate.lua` | Matches addon messages to visible chat lines |
 | ChatFilter | `UI/ChatFilter.lua` | Hooks chat events, drives the pipeline |
 | Render | `UI/Render.lua` | Output formatting, tier markers, hover tooltips |
@@ -188,9 +188,8 @@ Documented limits (warcraft.wiki.gg "C_ChatInfo.SendAddonMessage", retrieved
 - Blocked entirely during chat messaging lockdown (§1.1).
 
 Public zone channels (Trade, General) cannot carry addon messages, so they rely
-on Tier 2. If AceComm is adopted (ADR-0004), it splits long payloads across
-messages, so the per-message limit constrains throughput rather than message
-size.
+on Tier 2. AceComm (ADR-0004) splits long payloads across messages, so the
+per-message limit constrains throughput rather than message size.
 
 ## 7. Multi-flavor strategy
 
@@ -227,4 +226,4 @@ differs per flavor (dungeon names, roles) is tagged with a `flavors` field.
    rewriting across all target events pending.
 4. Memory/load cost of the data packs at target size — requires an in-game
    measurement.
-5. Library choice (ADR-0004) — awaiting user decision.
+5. Library choice — decided, ADR-0004 accepted.

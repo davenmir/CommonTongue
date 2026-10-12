@@ -99,7 +99,7 @@ recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
       *From documentation, see `ARCHITECTURE.md` §6.*
 - [ ] Measure memory and load-time cost of a ~1 MB Lua data table.
       *In-game only.*
-- [ ] Decide embedded library set (ADR-0004).
+- [x] Decide embedded library set (ADR-0004).
 
 ### M1 — Skeleton
 - [ ] Addon folder, Retail TOC, namespace bootstrap, event dispatcher.
