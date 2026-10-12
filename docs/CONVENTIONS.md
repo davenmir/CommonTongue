@@ -107,8 +107,8 @@ local pairs, type, strfind = pairs, type, string.find
 ## 10. Data files
 
 - One language per folder: `Data/<locale>/Phrases.lua`, `Data/<locale>/Gloss.lua`.
-- Patterns lowercase; the normalizer lowercases input where the language
-  allows it.
+- Patterns lowercase; the normalizer lowercases and strips Latin diacritics
+  (`adiós` and `adios` match the same). Keep accents in `render` strings.
 - Every pack declares `reviewed = true|false`. Agents set `false`.
 - Run `tools/validate_data.lua` after any data change.
 

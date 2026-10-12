@@ -92,7 +92,7 @@ function Normalize.Run(text)
     s = stripColors(s)
     -- leftover pipe sequences that are not markup we understand
     s = s:gsub("|+", "|")
-    s = utf8().Lower(s)
+    s = utf8().Fold(s)
     s = collapseLetters(s)
     s = s:gsub("%s+", " ")
     s = s:gsub("^%s+", ""):gsub("%s+$", "")

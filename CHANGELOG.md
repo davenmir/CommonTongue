@@ -22,6 +22,11 @@ All notable changes to this project are documented here. The format follows
 - `/ct self` and a settings toggle to translate your own messages for solo
   testing.
 
+### Fixed
+
+- Phrase matching ignores missing accent marks (`adios` = `adiós`, `fur` =
+  `für`). Rendered output still uses the accented form from the language pack.
+
 - Addon skeleton for Retail: module lifecycle, event dispatcher, compat layer
   with flavor detection.
 - Settings panel in the game's Settings window: enable/disable, target

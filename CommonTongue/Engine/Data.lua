@@ -41,6 +41,14 @@ function Data.Languages()
     return languages
 end
 
+local function foldLit(token)
+    local U = ns.UTF8
+    if U and U.Fold then
+        return U.Fold(token)
+    end
+    return token
+end
+
 local function parsePattern(pattern)
     local parts = {}
     for token in pattern:gmatch("%S+") do
@@ -48,7 +56,7 @@ local function parsePattern(pattern)
         if slot then
             parts[#parts + 1] = { slot = slot }
         else
-            parts[#parts + 1] = { lit = token }
+            parts[#parts + 1] = { lit = foldLit(token) }
         end
     end
     return parts

@@ -209,3 +209,90 @@ function UTF8.Lower(s)
     end
     return table.concat(out)
 end
+
+-- Diacritics → ASCII base letters. Chat on EU realms is often typed on an
+-- English keyboard ("adios", "fur"). Matching must tolerate that; renders keep
+-- the accented form from the language pack.
+local FOLD = {
+    [0x00DF] = "ss", -- ß
+    [0x00E6] = "ae", -- æ
+    [0x00E7] = "c", -- ç
+    [0x00F0] = "d", -- ð
+    [0x00F1] = "n", -- ñ
+    [0x00F8] = "o", -- ø
+    [0x00FE] = "t", -- þ
+    [0x00FF] = "y", -- ÿ
+    [0x0153] = "oe", -- œ
+    [0x0142] = "l", -- ł
+}
+
+local function fillFold(from, to, base)
+    for cp = from, to do
+        FOLD[cp] = base
+    end
+end
+
+fillFold(0x00E0, 0x00E5, "a") -- à á â ã ä å
+fillFold(0x00E8, 0x00EB, "e") -- è é ê ë
+fillFold(0x00EC, 0x00EF, "i") -- ì í î ï
+fillFold(0x00F2, 0x00F6, "o") -- ò ó ô õ ö
+fillFold(0x00F9, 0x00FC, "u") -- ù ú û ü
+FOLD[0x00FD] = "y" -- ý
+
+-- Latin Extended-A lowercase letters used in EU locales (odd code points).
+local EXTENDED_A = {
+    [0x0101] = "a",
+    [0x0103] = "a",
+    [0x0105] = "a",
+    [0x0107] = "c",
+    [0x010D] = "c",
+    [0x0111] = "d",
+    [0x0113] = "e",
+    [0x0119] = "e",
+    [0x011B] = "e",
+    [0x011F] = "g",
+    [0x012B] = "i",
+    [0x0131] = "i",
+    [0x0144] = "n",
+    [0x014D] = "o",
+    [0x0151] = "o",
+    [0x0159] = "r",
+    [0x015B] = "s",
+    [0x0161] = "s",
+    [0x016B] = "u",
+    [0x0171] = "u",
+    [0x017A] = "z",
+    [0x017C] = "z",
+    [0x017E] = "z",
+}
+for cp, base in pairs(EXTENDED_A) do
+    FOLD[cp] = base
+end
+
+--- Lowercases then strips Latin diacritics. Combining marks are dropped.
+---@param cp number
+---@return string
+function UTF8.FoldCode(cp)
+    cp = UTF8.LowerCode(cp)
+    if cp >= 0x0300 and cp <= 0x036F then
+        return ""
+    end
+    return FOLD[cp] or UTF8.Char(cp)
+end
+
+---@param s string
+---@return string
+function UTF8.Fold(s)
+    local out, n = {}, 0
+    local i = 1
+    while true do
+        local cp
+        cp, i = UTF8.Next(s, i)
+        if not cp then
+            break
+        end
+        n = n + 1
+        out[n] = UTF8.FoldCode(cp)
+    end
+    return table.concat(out)
+end

@@ -52,7 +52,7 @@ local WORDS = {
         das = 2,
         ich = 2,
         nicht = 2,
-        ["für"] = 3,
+        fur = 3, -- folded für; chat often drops the umlaut
         mit = 2,
         ein = 1,
         eine = 1,
@@ -61,7 +61,7 @@ local WORDS = {
         bitte = 2,
         gruppe = 2,
         heiler = 2,
-        ["über"] = 1,
+        uber = 1,
     },
     esES = {
         y = 2,
@@ -137,12 +137,12 @@ local WORDS = {
 -- Distinctive lowercase trigrams for Latin-script languages.
 local TRIGRAMS = {
     enUS = { the = 2, ing = 2, ["and"] = 2, ["for"] = 1, you = 1, tha = 1, her = 1 },
-    deDE = { sch = 3, ung = 2, cht = 2, ein = 1, ich = 2, und = 2, die = 1, ["ür"] = 2 },
-    esES = { que = 2, ["ció"] = 2, ["ión"] = 2, los = 2, par = 2, ara = 1 },
-    esMX = { que = 2, ["ció"] = 2, ["ión"] = 2, los = 2, par = 2, ara = 1 },
-    frFR = { les = 2, que = 1, est = 1, our = 2, ais = 2, eur = 1, ["ée"] = 1 },
+    deDE = { sch = 3, ung = 2, cht = 2, ein = 1, ich = 2, und = 2, die = 1, fur = 2 },
+    esES = { que = 2, cio = 2, ion = 2, los = 2, par = 2, ara = 1 },
+    esMX = { que = 2, cio = 2, ion = 2, los = 2, par = 2, ara = 1 },
+    frFR = { les = 2, que = 1, est = 1, our = 2, ais = 2, eur = 1 },
     itIT = { che = 2, zio = 2, gli = 2, per = 2, one = 1 },
-    ptBR = { ["ção"] = 3, ["ão"] = 2, ["nã"] = 2, que = 1, par = 1 },
+    ptBR = { cao = 3, nao = 2, que = 1, par = 1 },
 }
 
 local SCRIPT_LANGUAGE = {

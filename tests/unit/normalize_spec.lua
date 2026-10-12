@@ -47,6 +47,15 @@ describe("Normalize", function()
         assert.are.equal("1000g", Normalize.Run("1000g").normalized)
     end)
 
+    it("folds missing-accent chat to the same tokens as accented chat", function()
+        assert.are.equal("adios", Normalize.Run("adiós").normalized)
+        assert.are.equal("adios", Normalize.Run("adios").normalized)
+        assert.are.equal(
+            Normalize.Run("Suche Tank und Heiler für +10").normalized,
+            Normalize.Run("Suche Tank und Heiler fur +10").normalized
+        )
+    end)
+
     it("handles Cyrillic, Hangul and Han", function()
         assert.are.equal("привет", Normalize.Run("Привет").normalized)
         assert.are.equal("탱커", Normalize.Run("탱커").normalized)
