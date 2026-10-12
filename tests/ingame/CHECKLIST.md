@@ -11,8 +11,9 @@ outcome, notes. Items here cannot be verified by agents.
 |---|---|---|---|---|
 | 2026-10-11 | 120100 | Retail | CTSpike loads; filter API | Loads cleanly; `ChatFrameUtil.AddMessageEventFilter` present |
 | 2026-10-11 | 120100 | Retail | Data table cost | 1,098,047 bytes / 6,000 entries / 18,000 patterns: `LoadAddOn` 544.7 ms, 4,677 KB addon memory (heap +3,621 KB); first-token index 5.9 ms, 647 KB |
-| 2026-10-11 | 120100 | Retail | Chat filter rewrite (SAY) | Marker shown in ChatFrame1; other events not yet exercised |
-| 2026-10-11 | 120100 | Retail | EllesmereUIChat interaction | With EllesmereUIChat on, `/played` shows raw `\|4day:days;` grammar escapes; disabling it fixes this. Not caused by CTSpike (system messages are not filtered). Filter output is honored: SAY marker shown with it on and off; other chat types pending |
+| 2026-10-11 | 120100 | Retail | Chat filter rewrite (SAY) | Marker shown in ChatFrame1 |
+| 2026-10-11 | 120100 | Retail | Chat filter rewrite (other types) | User-reported: marker shown on the other chat types tried, with EllesmereUIChat on. Group chat (party/raid/instance) not yet exercised |
+| 2026-10-11 | 120100 | Retail | EllesmereUIChat interaction | With EllesmereUIChat on, `/played` shows raw `\|4day:days;` grammar escapes; disabling it fixes this. Not caused by CTSpike (system messages are not filtered). Filter output is honored: SAY marker shown with it on and off, other chat types with it on |
 | 2026-10-11 | 120100 | Retail | Open-world chat readable | SAY, WHISPER, WHISPER_INFORM, CHANNEL: `textSecret=false`, `lockdown=false` (open world, maps 2393/2395/2537) |
 
 Tooling: the `CTSpike` test addon automates these checks.

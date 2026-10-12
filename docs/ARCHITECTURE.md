@@ -83,7 +83,7 @@ needed. Users can disable translation per chat type in settings.
 > compatibility. EllesmereUIChat is in the developer's own test setup and is
 > confirmed to render chat text its own way: it leaves `|4singular:plural;`
 > grammar escapes unprocessed (seen in `/played`, build 120100). It does honor
-> message event filter output for SAY (2026-10-11); other chat types unchecked.
+> message event filter output (2026-10-11, SAY and other solo chat types).
 
 Outgoing:
 
