@@ -15,10 +15,13 @@ Core\Compat.lua
 Core\Compat_Mainline.lua
 Core\Events.lua
 Core\DB.lua
+Core\UTF8.lua
 
 Locales\enUS.lua
 
 Engine\Languages.lua
+Engine\Normalize.lua
+Engine\Detect.lua
 
 UI\Settings.lua
 UI\Slash.lua

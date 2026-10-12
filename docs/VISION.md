@@ -114,10 +114,10 @@ runs alongside whenever a second player is available.
       *CI workflow not yet run on GitHub.*
 
 ### M2 — Text foundations
-- [ ] UTF-8 helpers (iterate codepoints, length, safe truncate).
-- [ ] Normalizer (case-folding where safe, strip color codes / links into
+- [x] UTF-8 helpers (iterate codepoints, length, safe truncate).
+- [x] Normalizer (case-folding where safe, strip color codes / links into
       placeholders, collapse repeated letters).
-- [ ] Language detector (script ranges + n-gram scoring for Latin-script
+- [x] Language detector (script ranges + n-gram scoring for Latin-script
       languages) with confidence score.
 
 ### M3 — Phrase engine (Tier 2)

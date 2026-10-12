@@ -63,6 +63,8 @@ CI is authoritative if local setup differs.
 ## 4. Test conventions
 
 - One spec file per module: `tests/unit/<module>_spec.lua`.
+  Engine specs (`utf8`, `normalize`, `detect`, later `phrase`) load only the
+  files they need and must not require AceDB.
 - Language-data tests are table-driven: input line, expected phrase ID,
   expected params, expected rendered output per target language.
 - Every bug fix adds a regression test reproducing it first.

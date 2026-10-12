@@ -8,6 +8,13 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- UTF-8 helpers: code-point iteration, length, safe truncate, script class,
+  case-folding for Latin and Cyrillic.
+- Chat normalizer: strips colors, lifts links/textures into placeholders,
+  lowercases, collapses long letter runs.
+- Offline language detector (script ranges plus word/trigram scores for
+  Latin-script locales).
+
 - Addon skeleton for Retail: module lifecycle, event dispatcher, compat layer
   with flavor detection.
 - Settings panel in the game's Settings window: enable/disable, target
