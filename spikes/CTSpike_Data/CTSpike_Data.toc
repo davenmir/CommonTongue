@@ -1,0 +1,10 @@
+## Interface: 120100, 120105
+## Title: CommonTongue M0 Spike (data)
+## Notes: ~1 MB synthetic phrase data, loaded on demand by /cts data.
+## LoadOnDemand: 1
+## Dependencies: CTSpike
+
+Pack1.lua
+Pack2.lua
+Pack3.lua
+Pack4.lua

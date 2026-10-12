@@ -120,6 +120,7 @@ CommonTongue/
 ├─ tests/                    # busted specs + WoW API stubs
 │  └─ ingame/CHECKLIST.md    # manual in-game verification log
 ├─ samples/chat/             # anonymized chat lines for coverage
+├─ spikes/                   # throwaway test addons (never packaged; exempt from §3.6)
 ├─ tools/                    # data validation / generation scripts
 └─ docs/
    ├─ VISION.md

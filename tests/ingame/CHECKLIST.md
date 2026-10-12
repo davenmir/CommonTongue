@@ -5,13 +5,27 @@ outcome, notes. Items here cannot be verified by agents.
 
 ## M0 — Feasibility spike (Retail)
 
+Tooling: the `CTSpike` test addon automates these checks.
+
+1. Run `spikes/make_data_pack.ps1` once (generates the ~1 MB data pack).
+2. Copy `spikes/CTSpike` and `spikes/CTSpike_Data` into
+   `World of Warcraft/_retail_/Interface/AddOns/`.
+3. In game, `/cts` lists commands. Chat lines get a grey `[cts <lineID>]`
+   marker (`/cts markers` toggles it). Lockdown changes and the first chat
+   message per channel and lockdown state print automatically.
+4. Results are saved to
+   `WTF/Account/<account>/SavedVariables/CTSpike.lua` on logout or `/reload`;
+   share that file to record results here.
+
 - [ ] **Chat filter rewrite.** Register a filter with
       `ChatFrameUtil.AddMessageEventFilter` that appends a marker to `text` for
       SAY, YELL, PARTY, PARTY_LEADER, RAID, RAID_LEADER, INSTANCE_CHAT,
       INSTANCE_CHAT_LEADER, GUILD, OFFICER, WHISPER, BN_WHISPER and CHANNEL
       (Trade/General). The marker appears in every chat frame showing them.
+      *CTSpike: look for the marker.*
 - [ ] **lineID stability.** The same message shows the same `lineID` (arg 11)
-      in every chat frame's filter call.
+      in every chat frame's filter call. *CTSpike: `/cts lines` with a channel
+      shown in two chat tabs; expect `frames=` to list both.*
 - [ ] **Lockdown scope.** Print `C_ChatInfo.InChatMessagingLockdown()` and
       `issecretvalue(text)` for PARTY/RAID chat in each situation:
       1. Inside a normal dungeon, out of combat, no encounter.
@@ -25,9 +39,11 @@ outcome, notes. Items here cannot be verified by agents.
       `addonMapRestrictionsForced`, `addonEncounterRestrictionsForced`,
       `addonChallengeModeRestrictionsForced`, `addonPvPMatchRestrictionsForced`
       force each restriction type (names per the current wiki; older beta notes
-      used `secret*RestrictionsForced`).
+      used `secret*RestrictionsForced`). *CTSpike: logs automatically; have a
+      groupmate type in party chat at each step.*
 - [ ] **Addon messages under lockdown.** `C_ChatInfo.SendAddonMessage` returns
       `AddOnMessageLockdown` (11) in each situation above where lockdown is true.
+      *CTSpike: `/cts addon`.*
 - [ ] **Data table cost.** Load a generated ~1 MB Lua table; record
-      `GetAddOnMemoryUsage` after `UpdateAddOnMemoryUsage()` and login time with
-      and without it.
+      `GetAddOnMemoryUsage` after `UpdateAddOnMemoryUsage()` and load time.
+      *CTSpike: `/cts data` right after a `/reload`.*
