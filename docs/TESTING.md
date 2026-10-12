@@ -41,8 +41,8 @@ checklist item and be flagged as pending verification.
 python3 tools/fetch_libs.py # once: embedded libraries into CommonTongue/Libs
 tools/check.sh              # luacheck + busted, as CI runs them
 stylua --check .
-lua tools/validate_data.lua                 # from M3
-lua tools/coverage.lua samples/chat/*.txt   # from M3, phrase coverage report
+lua5.1 tools/validate_data.lua
+# lua tools/coverage.lua samples/chat/*.txt   # coverage reporter still M6-ish
 ```
 
 Local setup on Windows (what the maintainer uses):

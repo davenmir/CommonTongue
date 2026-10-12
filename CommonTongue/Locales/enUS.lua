@@ -29,6 +29,15 @@ L["/ct debug - toggle debug mode"] = true
 L["Version %s (%s)"] = true
 L["Debug mode on. The addon namespace is available as CommonTongue."] = true
 L["Debug mode off."] = true
+L["Translate my own messages"] = true
+L["For testing without a second player. Leave off during normal play."] = true
+L["/ct self - toggle translating your own messages"] = true
+L["Own-message translation on."] = true
+L["Own-message translation off."] = true
+L["[%s→%s]"] = true
+L["[%s]"] = true
+L["(unreviewed)"] = true
+L["Original"] = true
 
 for key, value in pairs(L) do
     if value == true then

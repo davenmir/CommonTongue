@@ -97,6 +97,19 @@ function SettingsPanel.BuildOptions()
                     profile().targetLanguage = value
                 end,
             },
+            translateSelf = {
+                type = "toggle",
+                order = 2.5,
+                width = "full",
+                name = L["Translate my own messages"],
+                desc = L["For testing without a second player. Leave off during normal play."],
+                get = function()
+                    return profile().translateSelf
+                end,
+                set = function(_, value)
+                    profile().translateSelf = value
+                end,
+            },
             chatTypes = {
                 type = "group",
                 inline = true,

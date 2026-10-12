@@ -1,7 +1,7 @@
 # CommonTongue — Architecture
 
-Status: draft, pending M0 findings. Sections that depend on unverified platform
-facts are marked `> UNVERIFIED:`.
+Status: draft through M3. Sections that depend on unverified platform facts
+are marked `> UNVERIFIED:`.
 
 ## 1. Platform constraints
 

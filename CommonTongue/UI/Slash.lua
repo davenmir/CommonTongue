@@ -31,11 +31,22 @@ commands.debug = function()
     end
 end
 
+commands.self = function()
+    local profile = ns.DB:Profile()
+    profile.translateSelf = not profile.translateSelf
+    if profile.translateSelf then
+        ns:Print(L["Own-message translation on."])
+    else
+        ns:Print(L["Own-message translation off."])
+    end
+end
+
 commands.help = function()
     ns:Print(L["Commands:"])
     ns:Print(L["/ct - open settings"])
     ns:Print(L["/ct version - show version"])
     ns:Print(L["/ct debug - toggle debug mode"])
+    ns:Print(L["/ct self - toggle translating your own messages"])
 end
 
 ---@param input string|nil

@@ -14,6 +14,13 @@ All notable changes to this project are documented here. The format follows
   lowercases, collapses long letter runs.
 - Offline language detector (script ranges plus word/trigram scores for
   Latin-script locales).
+- Tier 2 phrase engine: catalog, per-language match/render packs, typed
+  parameters (roles, gold, numbers, links), chat filter pipeline.
+- First language data: enUS (reviewed) plus unreviewed deDE and esES drafts
+  (ADR-0005). Hover a translation to see the original; unreviewed output is
+  marked.
+- `/ct self` and a settings toggle to translate your own messages for solo
+  testing.
 
 - Addon skeleton for Retail: module lifecycle, event dispatcher, compat layer
   with flavor detection.

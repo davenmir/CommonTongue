@@ -18,4 +18,9 @@ luacheck . || status=1
 echo "== busted"
 busted "$@" || status=1
 
+if [ -f tools/validate_data.lua ]; then
+    echo "== validate_data"
+    lua5.1 tools/validate_data.lua || status=1
+fi
+
 exit $status

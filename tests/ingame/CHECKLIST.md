@@ -3,6 +3,24 @@
 Record each result as: date, build (`/dump select(4, GetBuildInfo())`), flavor,
 outcome, notes. Items here cannot be verified by agents.
 
+## M3 — Phrase engine (Retail)
+
+Requires M1 setup. Turn on **Translate my own messages** (`/ct self`) so you
+can test alone.
+
+- [ ] `/ct self` then `/say LFM Tank y healer para +10` shows an English line
+      marked `[es→en]` (or German if that is the target), plus `(unreviewed)`.
+- [ ] `/say Suche Tank und Heiler für +10` becomes `LFM tank and healer for +10`
+      when the target language is English.
+- [ ] Hover the translated text: tooltip shows the original.
+- [ ] `/say looking for tank and healer for the key` is left unchanged when
+      the target is English.
+- [ ] `/say was für ein schöner Sonnenuntergang heute` stays German and gets a
+      `[de]` tag, not a fake translation.
+- [ ] `/ct self` off: your own `/say` lines are no longer rewritten.
+- [ ] No Lua errors (BugSack empty) while chatting in SAY, whisper, and a
+      channel. Group chat still pending a second player.
+
 ## M1 — Skeleton (Retail)
 
 Setup: `python tools/fetch_libs.py`, then link `CommonTongue/` into

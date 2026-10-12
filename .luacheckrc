@@ -32,10 +32,15 @@ read_globals = {
     "DEFAULT_CHAT_FRAME",
     "GetAddOnMetadata",
     "GetBuildInfo",
+    "GameTooltip",
     "GetLocale",
     "InCombatLockdown",
     "IsLoggedIn",
     "LibStub",
+    "SetItemRef",
+    "UIParent",
+    "UnitName",
+    "hooksecurefunc",
     "Settings",
     "WOW_PROJECT_BURNING_CRUSADE_CLASSIC",
     "WOW_PROJECT_CATACLYSM_CLASSIC",
@@ -61,6 +66,10 @@ files["tests/**"] = {
     std = "+busted",
     -- Stubs install fake WoW globals; specs read them.
     ignore = { "111", "112", "113", "121", "122", "143" },
+}
+
+files["CommonTongue/UI/ChatFilter.lua"] = {
+    ignore = { "212" }, -- filter(_, ...) unused frame from Blizzard's callback
 }
 
 files["tools/**"] = {

@@ -38,6 +38,7 @@ DB.defaults = {
     profile = {
         enabled = true,
         targetLanguage = "auto",
+        translateSelf = false,
         chatTypes = defaultChatTypes(),
     },
 }

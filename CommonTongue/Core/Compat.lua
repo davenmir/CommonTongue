@@ -91,6 +91,62 @@ end
 --- Opens the addon's settings category. Returns false if it cannot open right now.
 ---@param categoryID any value returned by AceConfigDialog:AddToBlizOptions
 ---@return boolean
+---@return string|nil
+function Compat.PlayerName()
+    local unitName = _G.UnitName
+    if not unitName then
+        return nil
+    end
+    return unitName("player")
+end
+
+--- True when author is this character. Secret authors are treated as not-self.
+---@param author string|nil
+---@return boolean
+function Compat.IsSelf(author)
+    if not author or Compat.IsSecret(author) then
+        return false
+    end
+    local player = Compat.PlayerName()
+    if not player then
+        return false
+    end
+    if author == player then
+        return true
+    end
+    local short = author:match("^([^%-]+)")
+    return short == player
+end
+
+function Compat.HookHyperlink(fn)
+    local hook = _G.hooksecurefunc
+    if hook then
+        hook("SetItemRef", fn)
+    end
+end
+
+---@param lines string[]
+function Compat.ShowTooltip(lines)
+    local tip = _G.GameTooltip
+    if not tip or not lines then
+        return
+    end
+    local owner = _G.UIParent or tip
+    if tip.SetOwner then
+        tip:SetOwner(owner, "ANCHOR_CURSOR")
+    end
+    if tip.ClearLines then
+        tip:ClearLines()
+    end
+    for i = 1, #lines do
+        tip:AddLine(lines[i])
+    end
+    tip:Show()
+end
+
+--- Opens the addon's settings category. Returns false if it cannot open right now.
+---@param categoryID any value returned by AceConfigDialog:AddToBlizOptions
+---@return boolean
 function Compat.OpenSettings(categoryID)
     if Compat.InCombat() then
         return false

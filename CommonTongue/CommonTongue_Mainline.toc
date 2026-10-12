@@ -22,6 +22,16 @@ Locales\enUS.lua
 Engine\Languages.lua
 Engine\Normalize.lua
 Engine\Detect.lua
+Engine\Data.lua
+Engine\Params.lua
+Engine\Phrase.lua
 
+Data\Phrases.lua
+Data\enUS\Phrases.lua
+Data\deDE\Phrases.lua
+Data\esES\Phrases.lua
+
+UI\Render.lua
+UI\ChatFilter.lua
 UI\Settings.lua
 UI\Slash.lua

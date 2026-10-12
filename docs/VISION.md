@@ -102,7 +102,7 @@ recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
       *545 ms, ~4.6 MB; see `ARCHITECTURE.md` §9.*
 - [x] Decide embedded library set (ADR-0004).
 
-### M1 — Skeleton **(CURRENT)**
+### M1 — Skeleton
 Started 2026-10-11 with user confirmation; M0's grouped dungeon lockdown check
 runs alongside whenever a second player is available.
 - [x] Addon folder, Retail TOC, namespace bootstrap, event dispatcher.
@@ -121,11 +121,15 @@ runs alongside whenever a second player is available.
       languages) with confidence score.
 
 ### M3 — Phrase engine (Tier 2)
-- [ ] Phrase data format and validator tool.
-- [ ] Pattern matcher with parameter slots (role, number, gold amount, link).
-- [ ] Renderer: phrase ID + params → target language string.
-- [ ] Chat display: translated line rendering, visual marking, original on hover.
-- [ ] First language pair data (ADR-0005), common LFG/trade/raid/courtesy phrases.
+Code complete 2026-10-12. In-game verification and native-speaker review
+pending. Do not start M4 without user confirmation.
+- [x] Phrase data format and validator tool.
+- [x] Pattern matcher with parameter slots (role, number, gold amount, link).
+- [x] Renderer: phrase ID + params → target language string.
+- [x] Chat display: translated line rendering, visual marking, original on hover.
+      *In-game hover and group-chat checks pending.*
+- [x] First language pair data (ADR-0005), common LFG/trade/raid/courtesy phrases.
+      *enUS reviewed; deDE and esES are agent drafts (`reviewed = false`).*
 
 ### M4 — CommonTongue protocol (Tier 1) and composer
 - [ ] Wire format v1 and encoder/decoder (ADR required).

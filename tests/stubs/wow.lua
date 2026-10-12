@@ -112,6 +112,25 @@ function M.install(opts)
     _G.UnitName = function()
         return "Tester"
     end
+    _G.UIParent = { name = "UIParent" }
+    _G.GameTooltip = {
+        lines = {},
+        shown = false,
+        SetOwner = function() end,
+        ClearLines = function(self)
+            self.lines = {}
+        end,
+        AddLine = function(self, line)
+            self.lines[#self.lines + 1] = line
+        end,
+        Show = function(self)
+            self.shown = true
+        end,
+    }
+    _G.hooksecurefunc = function(name, fn)
+        state.hooks = state.hooks or {}
+        state.hooks[name] = fn
+    end
     _G.UnitClass = function()
         return "Mage", "MAGE"
     end
