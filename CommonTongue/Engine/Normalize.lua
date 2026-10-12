@@ -118,9 +118,11 @@ function Normalize.Restore(text, placeholders)
     if not placeholders then
         return text
     end
-    return (text:gsub("{([ltaLTA])(%d+)}", function(kind, index)
-        return placeholders[tonumber(index)] or ("{" .. kind:lower() .. index .. "}")
-    end))
+    return (
+        text:gsub("{([ltaLTA])(%d+)}", function(kind, index)
+            return placeholders[tonumber(index)] or ("{" .. kind:lower() .. index .. "}")
+        end)
+    )
 end
 
 function Normalize:OnInitialize()
