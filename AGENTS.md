@@ -103,6 +103,9 @@ CommonTongue/
 ├─ .pkgmeta                  # BigWigs packager config
 ├─ .luacheckrc
 ├─ .stylua.toml
+├─ .busted                   # busted config
+├─ .github/workflows/        # CI and release
+├─ CHANGELOG.md              # Keep a Changelog format
 ├─ CommonTongue/             # the shippable addon folder
 │  ├─ CommonTongue_Mainline.toc
 │  ├─ CommonTongue_Vanilla.toc   # added in classic milestone
@@ -114,6 +117,8 @@ CommonTongue/
 │  ├─ Data/                  # phrase packs and glossaries per language
 │  └─ Libs/                  # embedded libraries (via .pkgmeta externals)
 ├─ tests/                    # busted specs + WoW API stubs
+│  └─ ingame/CHECKLIST.md    # manual in-game verification log
+├─ samples/chat/             # anonymized chat lines for coverage
 ├─ tools/                    # data validation / generation scripts
 └─ docs/
    ├─ VISION.md

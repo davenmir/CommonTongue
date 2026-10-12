@@ -5,7 +5,8 @@
 - Target **Lua 5.1** semantics (WoW's runtime). Do not use `goto`, integer
   division `//`, bitwise operators, `utf8.*`, or `table.unpack` (use `unpack`).
 - WoW extras that are safe to use: `strsplit`, `strjoin`, `strtrim`, `wipe`,
-  `tinsert`/`tremove`, `strlenutf8`, `C_Timer`. Access them via locals at file
+  `tinsert`/`tremove`, `strlenutf8`, `C_Timer`, and the `bit` library
+  (`bit.band`, `bit.bor`, `bit.bxor`, ...) in place of bitwise operators. Access them via locals at file
   top so unit-test stubs can replace them.
 
 ## 2. File structure

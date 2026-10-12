@@ -73,7 +73,7 @@ Each file registers into the shared namespace: `local _, ns = ...`.
 | Gloss | `Engine/Gloss.lua` | Word lookup for approximate hints |
 | DataLoader | `Engine/Data.lua` | Registers language packs, lazy-builds indexes |
 | Protocol | `Comm/Protocol.lua` | Wire format encode/decode, versioning |
-| Transport | `Comm/Transport.lua` | Send queue, throttling, prefix registration, chunking |
+| Transport | `Comm/Transport.lua` | Prefix registration, send/receive; delegates chunking and throttling to AceComm/ChatThrottleLib if ADR-0004 is accepted, otherwise owns them |
 | Correlate | `Comm/Correlate.lua` | Matches addon messages to visible chat lines |
 | ChatFilter | `UI/ChatFilter.lua` | Hooks chat events, drives the pipeline |
 | Render | `UI/Render.lua` | Output formatting, tier markers, hover tooltips |
@@ -83,6 +83,11 @@ Each file registers into the shared namespace: `local _, ns = ...`.
 Dependency rule: `UI → Comm → Engine → Core`. Lower layers never reference
 higher ones. `Engine/` must be pure logic with no WoW API calls (other than via
 `Core/`), so it can be unit tested outside the client.
+
+`Locales/` and `Data/` are passive registration files, not layers. `Locales/`
+loads right after `Core/`. `Data/` calls `ns.Data.Register*` and therefore loads
+after `Engine/Data.lua`. TOC order: `Libs/` → `Core/` → `Locales/` → `Engine/` →
+`Data/` → `Comm/` → `UI/`.
 
 ## 4. Phrase model
 
@@ -146,7 +151,9 @@ Detailed wire format requires an ADR in M4. Design intent:
 > UNVERIFIED: addon message payload limit (believed 255 bytes), throttle rules,
 > and whether SAY/YELL/public channels can carry addon messages on Retail.
 > Public channels (Trade, General) likely cannot be covered by Tier 1 and rely
-> on Tier 2. M0 task.
+> on Tier 2. M0 task. If AceComm is adopted (ADR-0004), it splits long
+> payloads across messages, so the per-message limit constrains throughput
+> rather than message size.
 
 ## 7. Multi-flavor strategy
 
@@ -161,9 +168,13 @@ differs per flavor (dungeon names, roles) is tagged with a `flavors` field.
 
 - Chat filter median < 0.1 ms per message; worst case < 1 ms.
 - Fast exits first: disabled channel → own messages → same language as target.
-- Cache results per (sender, message) for the duration of a line's display
-  (chat filters run once per chat frame, so the same message is filtered
-  multiple times).
+- Cache results per chat line for the duration of a line's display (chat
+  filters run once per chat frame, so the same message is filtered multiple
+  times). Key by the event's line ID rather than (sender, message), since the
+  same text can legitimately be sent twice.
+
+> UNVERIFIED: the line ID argument (believed to be the 11th event argument of
+> `CHAT_MSG_*`) is unique per line and identical across chat frames. M0 task.
 - No per-message table allocation in hot paths where avoidable.
 
 ## 9. Open questions (resolve in M0)
