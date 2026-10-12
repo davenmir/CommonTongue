@@ -33,7 +33,8 @@ change that discovers it.
 2. **No Terms-of-Service risk.** No automation of player input, no memory
    reading, no anything that would get a user's account actioned.
 3. **No taint.** Never replace or modify Blizzard secure frames/functions.
-   Use documented hooks (`ChatFrame_AddMessageEventFilter`, `hooksecurefunc`).
+   Use documented hooks (chat message event filters via `ns.Compat`,
+   `hooksecurefunc`).
 4. **Honest output.** Accurate phrase translations and approximate word glosses
    must be visually distinct. Never present a guess as a translation.
 5. **Multi-flavor ready.** Retail is the first target, but all flavor-specific

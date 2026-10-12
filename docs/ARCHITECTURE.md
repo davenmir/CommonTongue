@@ -15,10 +15,33 @@ facts are marked `> UNVERIFIED:`.
 | No `utf8` library; strings are byte arrays | We implement our own UTF-8 helpers (`Core/UTF8.lua`); WoW provides `strlenutf8` |
 | Addon messages limited in size and rate | Protocol must be compact and use a throttled send queue |
 
-> UNVERIFIED: Retail (12.x) "secret values" may make chat message contents
-> unreadable by addons in some contexts (e.g. during encounters or in restricted
-> instances). If so, the engine must detect secret values and skip gracefully.
-> M0 task.
+### 1.1 Retail chat messaging lockdown (12.x)
+
+Documented (warcraft.wiki.gg "Secret Values", "CHAT_MSG_PARTY",
+"C_ChatInfo.SendAddonMessage", retrieved 2026-10-11):
+
+- `CHAT_MSG_*` events carry the `SecretInChatMessagingLockdown` predicate. While
+  lockdown is active, `text`, `playerName`, `guid` and `playerName2` arrive as
+  secret values. `lineID`, `channelName`, `zoneChannelID`, `languageID` and
+  `specialFlags` are `NeverSecret`.
+- Tainted code (all addon code, including chat filters) may store, pass and
+  concatenate secret strings but may not compare, index, measure (`#`), use as
+  table keys, or run `string.find`/`gsub` on them. Violations are immediate Lua
+  errors.
+- Detection: `issecretvalue(v)` per value; `C_ChatInfo.InChatMessagingLockdown()`
+  for the global state (its `lockdownReason` return was removed in 12.0.5).
+- During lockdown, addons cannot send addon messages
+  (`Enum.SendAddonMessageResult.AddOnMessageLockdown`) or regular chat.
+- Consequence: `UI/ChatFilter.lua` must check `issecretvalue(text)` before any
+  string operation and pass the line through untouched. Tiers 1–3 are all
+  unavailable for that line; the composer must disable sending.
+
+> UNVERIFIED: when lockdown applies. Blizzard's Oct 2025 alpha notes say only
+> while a keystone run, PvP match, or instance encounter is in progress. The
+> current wiki predicate text adds "when the player is on a
+> communication-restricted map such as a dungeon or raid". If the latter holds,
+> CommonTongue cannot read party/raid chat anywhere inside dungeons and raids.
+> Needs in-game check (see `tests/ingame/CHECKLIST.md`).
 
 ## 2. High-level data flow
 
@@ -51,9 +74,12 @@ Outgoing:
 
 ```
 Composer (UI/Composer.lua) → phrase ID + params
-   ├─► SendChatMessage(rendered text in sender's chosen outgoing language)
+   ├─► C_ChatInfo.SendChatMessage(rendered text in sender's chosen outgoing language)
    └─► Comm/Protocol.lua → throttled addon message with phrase ID + params
 ```
+
+Sending must happen inside a click handler: SAY, YELL and CHANNEL require a
+hardware event. Both sends are blocked during chat messaging lockdown (§1.1).
 
 ## 3. Modules
 
@@ -148,12 +174,23 @@ Detailed wire format requires an ADR in M4. Design intent:
 - Unknown versions or phrase IDs fall back silently to Tier 2/3.
 - Channels: group, raid, instance, guild, whisper.
 
-> UNVERIFIED: addon message payload limit (believed 255 bytes), throttle rules,
-> and whether SAY/YELL/public channels can carry addon messages on Retail.
-> Public channels (Trade, General) likely cannot be covered by Tier 1 and rely
-> on Tier 2. M0 task. If AceComm is adopted (ADR-0004), it splits long
-> payloads across messages, so the per-message limit constrains throughput
-> rather than message size.
+Documented limits (warcraft.wiki.gg "C_ChatInfo.SendAddonMessage", retrieved
+2026-10-11):
+
+- Prefix ≤ 16 characters, registered with `C_ChatInfo.RegisterAddonMessagePrefix`.
+- Payload ≤ 255 characters; any byte except NUL.
+- Throttle per prefix: burst of 10 messages, regaining 1 per second; whispers
+  outside instances are exempt. The server may change these numbers at any time.
+- Retail chat types: PARTY, RAID, INSTANCE_CHAT, GUILD, OFFICER, WHISPER,
+  CHANNEL (custom channels only). SAY and YELL are Classic-only.
+- Returns `Enum.SendAddonMessageResult` (12.0 added `AddOnMessageLockdown`
+  and `TargetOffline`).
+- Blocked entirely during chat messaging lockdown (§1.1).
+
+Public zone channels (Trade, General) cannot carry addon messages, so they rely
+on Tier 2. If AceComm is adopted (ADR-0004), it splits long payloads across
+messages, so the per-message limit constrains throughput rather than message
+size.
 
 ## 7. Multi-flavor strategy
 
@@ -171,17 +208,23 @@ differs per flavor (dungeon names, roles) is tagged with a `flavors` field.
 - Cache results per chat line for the duration of a line's display (chat
   filters run once per chat frame, so the same message is filtered multiple
   times). Key by the event's line ID rather than (sender, message), since the
-  same text can legitimately be sent twice.
-
-> UNVERIFIED: the line ID argument (believed to be the 11th event argument of
-> `CHAT_MSG_*`) is unique per line and identical across chat frames. M0 task.
+  same text can legitimately be sent twice. `lineID` is event argument 11,
+  documented as unique per line and `NeverSecret`, so it is usable as a key
+  even during lockdown.
 - No per-message table allocation in hot paths where avoidable.
 
 ## 9. Open questions (resolve in M0)
 
-1. Exact Retail behavior of secret values for chat events.
-2. Addon message limits and permitted chat types on Retail.
-3. Whether `ChatFrame_AddMessageEventFilter` is still the sanctioned API on the
-   current Retail build, or has moved (e.g. into a `ChatFrameUtil` namespace).
-4. Memory/load cost of the data packs at target size.
-5. Library choice (ADR-0004).
+1. Secret values for chat events — documented (§1.1). Open: whether lockdown
+   covers the whole dungeon/raid map or only active keys/encounters/PvP
+   matches. In-game check pending.
+2. Addon message limits and chat types — documented (§6).
+3. Chat filter API — on Retail 12.0+ it is `ChatFrameUtil.AddMessageEventFilter`
+   (same signature); `ChatFrame_AddMessageEventFilter` survives only as an alias
+   in `Blizzard_DeprecatedChatInfo`. `Core/Compat.lua` picks
+   `ChatFrameUtil.AddMessageEventFilter` when present, else the legacy global
+   (source: wow-ui-source 12.0.0 `Deprecated_ChatFrame.lua`). In-game check of
+   rewriting across all target events pending.
+4. Memory/load cost of the data packs at target size — requires an in-game
+   measurement.
+5. Library choice (ADR-0004) — awaiting user decision.

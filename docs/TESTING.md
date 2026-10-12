@@ -17,8 +17,11 @@ checklist item and be flagged as pending verification.
 ## 2. WoW API stubs
 
 - `tests/stubs/wow.lua` provides minimal fakes: `CreateFrame`, event
-  registration, `C_Timer`, `C_ChatInfo`, `ChatFrame_AddMessageEventFilter`,
+  registration, `C_Timer`, `C_ChatInfo`, `ChatFrameUtil.AddMessageEventFilter`,
   `GetLocale`, `WOW_PROJECT_ID`, string helpers (`strsplit`, `strtrim`, ...).
+- Secret values: the stub provides `issecretvalue` and a way to mark a test
+  string as secret, so specs can assert the chat filter passes it through
+  without touching it.
 - `tests/helpers/loader.lua` loads addon files in TOC order with a shared `ns`,
   emulating `local _, ns = ...`.
 - Stubs implement only what tests need; extend them alongside tests.

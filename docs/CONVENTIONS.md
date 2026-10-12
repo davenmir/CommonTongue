@@ -108,3 +108,10 @@ Append entries here as they are discovered: `- <API/behavior> — <why it matter
 - Chat filters run once per chat frame showing the event — results must be
   cached to avoid repeated work and inconsistent output.
 - SavedVariables are not available until `ADDON_LOADED` for this addon fires.
+- Retail chat text can be a secret value (ARCHITECTURE §1.1) — check
+  `issecretvalue(text)` before any string op; comparing or `strfind`-ing a
+  secret is an immediate Lua error. `if text then` is allowed.
+- Retail chat filters are registered via `ChatFrameUtil.AddMessageEventFilter`;
+  the `ChatFrame_*` global is a deprecated alias — go through `ns.Compat`.
+- `C_ChatInfo.SendChatMessage` on SAY/YELL/CHANNEL requires a hardware event —
+  only send from a click/keypress handler.

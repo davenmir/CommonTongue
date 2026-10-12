@@ -29,6 +29,12 @@ models. Instead it uses three offline techniques, from most to least accurate
 Free-form conversation that matches no phrase gets at most a Tier 3 gloss. The
 product must be honest about this in UI and store descriptions.
 
+On Retail, Blizzard's chat messaging lockdown makes chat text unreadable to
+addons and blocks addon-sent messages during Mythic+ runs, PvP matches and boss
+encounters, and possibly anywhere inside dungeons and raids
+(`ARCHITECTURE.md` §1.1). In those situations CommonTongue cannot translate or
+send anything; it must say so rather than fail silently.
+
 ## 4. Goals
 
 - **G1** — Detect the language of incoming chat messages, offline.
@@ -81,12 +87,18 @@ Goal: confirm the platform facts the design depends on. Output is findings
 recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
 - [ ] Confirm chat message filtering/rewriting via `ChatFrame_AddMessageEventFilter`
       (or its current Retail equivalent) works for all target chat events.
+      *API identified from documentation (`ChatFrameUtil.AddMessageEventFilter`);
+      in-game check pending.*
 - [ ] Determine Retail "secret value" restrictions on chat message contents
       (which contexts, which events) and how to detect them.
-- [ ] Confirm addon message limits on Retail: prefix length, payload size,
+      *Events and detection documented; whether lockdown covers entire
+      dungeon/raid maps needs an in-game check.*
+- [x] Confirm addon message limits on Retail: prefix length, payload size,
       throttling, and which chat types accept addon messages (PARTY, RAID,
       INSTANCE_CHAT, GUILD, WHISPER, CHANNEL, SAY/YELL restrictions).
+      *From documentation, see `ARCHITECTURE.md` §6.*
 - [ ] Measure memory and load-time cost of a ~1 MB Lua data table.
+      *In-game only.*
 - [ ] Decide embedded library set (ADR-0004).
 
 ### M1 — Skeleton
