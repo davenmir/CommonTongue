@@ -38,14 +38,23 @@ local pairs, type, strfind = pairs, type, string.find
 | Constants | UPPER_SNAKE | `MAX_PAYLOAD_BYTES` |
 | Phrase IDs | UPPER_SNAKE | `LFM_ROLES` |
 | Locale codes | WoW format | `deDE`, `ptBR` |
-| SavedVariables | `CommonTongueDB` (account), `CommonTongueCharDB` (character) |
+| SavedVariables | `CommonTongueDB` (account-wide, via AceDB; per-character data uses AceDB's `char` section, so no separate per-character file) |
 
 ## 4. Globals and namespace
 
-- No new globals. All shared state lives on `ns`.
-- Debug access in-game: `/ct debug` may expose `ns` as `_G.CommonTongue` only
-  when debug mode is on.
+- No new globals. All shared state lives on `ns`. Exceptions are listed in
+  `AGENTS.md` §3.6 (SavedVariables, slash command registration).
+- Debug access in-game: `/ct debug` exposes `ns` as `CommonTongue` only while
+  debug mode is on.
 - `luacheck` enforces this; the allowed WoW globals list lives in `.luacheckrc`.
+
+### Module lifecycle
+
+- `ns:NewModule(name)` registers a module; modules run in TOC load order.
+- `Module:OnInitialize()` runs once on this addon's `ADDON_LOADED`
+  (SavedVariables ready). `Module:OnEnable()` runs once on `PLAYER_LOGIN`.
+- Both are called through `ns.Compat.SafeCall`, so one module's error is
+  reported (BugSack) without stopping the others.
 
 ## 5. WoW API usage
 
@@ -60,8 +69,10 @@ local pairs, type, strfind = pairs, type, string.find
 
 ## 6. Strings and text
 
-- User-visible UI strings go through `L["Key"]` (`Locales/enUS.lua` is the base;
-  missing keys fall back to enUS).
+- User-visible UI strings go through `L["English text"]`. Keys are the enUS
+  text; `Locales/enUS.lua` declares every key as `L["..."] = true`, and a test
+  fails if code uses a key that enUS doesn't declare. Missing translations fall
+  back to the key.
 - Translation data (phrases, glossaries) lives in `Data/`, never in `Locales/`.
 - Treat all chat text as UTF-8 bytes. Use `ns.UTF8` helpers for anything
   length- or position-based. Never slice a string mid-codepoint.
@@ -96,8 +107,8 @@ local pairs, type, strfind = pairs, type, string.find
 ## 10. Data files
 
 - One language per folder: `Data/<locale>/Phrases.lua`, `Data/<locale>/Gloss.lua`.
-- Patterns lowercase; the normalizer lowercases input where the language
-  allows it.
+- Patterns lowercase; the normalizer lowercases and strips Latin diacritics
+  (`adiós` and `adios` match the same). Keep accents in `render` strings.
 - Every pack declares `reviewed = true|false`. Agents set `false`.
 - Run `tools/validate_data.lua` after any data change.
 
@@ -108,3 +119,10 @@ Append entries here as they are discovered: `- <API/behavior> — <why it matter
 - Chat filters run once per chat frame showing the event — results must be
   cached to avoid repeated work and inconsistent output.
 - SavedVariables are not available until `ADDON_LOADED` for this addon fires.
+- Retail chat text can be a secret value (ARCHITECTURE §1.1) — check
+  `issecretvalue(text)` before any string op; comparing or `strfind`-ing a
+  secret is an immediate Lua error. `if text then` is allowed.
+- Retail chat filters are registered via `ChatFrameUtil.AddMessageEventFilter`;
+  the `ChatFrame_*` global is a deprecated alias — go through `ns.Compat`.
+- `C_ChatInfo.SendChatMessage` on SAY/YELL/CHANNEL requires a hardware event —
+  only send from a click/keypress handler.

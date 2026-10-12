@@ -33,14 +33,17 @@ change that discovers it.
 2. **No Terms-of-Service risk.** No automation of player input, no memory
    reading, no anything that would get a user's account actioned.
 3. **No taint.** Never replace or modify Blizzard secure frames/functions.
-   Use documented hooks (`ChatFrame_AddMessageEventFilter`, `hooksecurefunc`).
+   Use documented hooks (chat message event filters via `ns.Compat`,
+   `hooksecurefunc`).
 4. **Honest output.** Accurate phrase translations and approximate word glosses
    must be visually distinct. Never present a guess as a translation.
 5. **Multi-flavor ready.** Retail is the first target, but all flavor-specific
    API access goes through the compat layer (`Core/Compat.lua`). No direct calls
    to flavor-divergent APIs from feature modules.
-6. **No globals** other than the addon's single namespace table and the
-   SavedVariables declared in the TOC.
+6. **No globals** other than the SavedVariables declared in the TOC and what WoW
+   requires to register the `/ct` slash command (`SLASH_COMMONTONGUE1..n`,
+   `SlashCmdList.COMMONTONGUE`). The namespace is exposed as `CommonTongue`
+   only while `/ct debug` is on. `.luacheckrc` is the enforced list.
 
 ## 4. Workflow for every task
 
@@ -119,6 +122,7 @@ CommonTongue/
 ├─ tests/                    # busted specs + WoW API stubs
 │  └─ ingame/CHECKLIST.md    # manual in-game verification log
 ├─ samples/chat/             # anonymized chat lines for coverage
+├─ spikes/                   # throwaway test addons (never packaged; exempt from §3.6)
 ├─ tools/                    # data validation / generation scripts
 └─ docs/
    ├─ VISION.md

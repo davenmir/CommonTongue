@@ -1,8 +1,8 @@
 # ADR-0004: Embedded libraries
 
-- Status: Proposed (decide in M0)
+- Status: Accepted
 - Date: 2026-10-11
-- Deciders: pending
+- Deciders: Emme (user)
 
 ## Context
 
@@ -10,7 +10,7 @@ We need: SavedVariables defaults/profiles, a settings UI, throttled and chunked
 addon messaging, and possibly a minimap/LDB launcher. The community-standard
 libraries cover these and are maintained across flavors.
 
-## Proposed decision
+## Decision
 
 Embed via `.pkgmeta` externals (not committed to the repo):
 
@@ -31,3 +31,7 @@ Do not use `AceAddon`/`AceEvent` initially; our own small `Core/Init.lua` and
 
 - Tests must stub or load these libraries (`tests/stubs/`).
 - Version pins in `.pkgmeta`.
+- `Comm/Transport.lua` is a thin wrapper over AceComm; chunking and throttling
+  are not reimplemented.
+- AceComm sends fail during Retail chat messaging lockdown like any addon
+  message (ARCHITECTURE §1.1); Transport must check lockdown before queueing.

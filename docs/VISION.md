@@ -29,6 +29,12 @@ models. Instead it uses three offline techniques, from most to least accurate
 Free-form conversation that matches no phrase gets at most a Tier 3 gloss. The
 product must be honest about this in UI and store descriptions.
 
+On Retail, Blizzard's chat messaging lockdown makes chat text unreadable to
+addons and blocks addon-sent messages during Mythic+ runs, PvP matches and boss
+encounters, and possibly anywhere inside dungeons and raids
+(`ARCHITECTURE.md` §1.1). In those situations CommonTongue cannot translate or
+send anything; it must say so rather than fail silently.
+
 ## 4. Goals
 
 - **G1** — Detect the language of incoming chat messages, offline.
@@ -76,39 +82,54 @@ in ADR-0005 (pending, M3).
 Agents work only in the current milestone (marked **CURRENT**). Check boxes as
 tasks complete. Do not start the next milestone without user confirmation.
 
-### M0 — Feasibility spike **(CURRENT)**
+### M0 — Feasibility spike (done except the grouped dungeon check, carried into M1)
 Goal: confirm the platform facts the design depends on. Output is findings
 recorded in `ARCHITECTURE.md` §9 (open questions) and ADRs, not shipping code.
 - [ ] Confirm chat message filtering/rewriting via `ChatFrame_AddMessageEventFilter`
       (or its current Retail equivalent) works for all target chat events.
+      *`ChatFrameUtil.AddMessageEventFilter` verified in-game on all solo chat
+      types, including with EllesmereUIChat; group chat types pending.*
 - [ ] Determine Retail "secret value" restrictions on chat message contents
       (which contexts, which events) and how to detect them.
-- [ ] Confirm addon message limits on Retail: prefix length, payload size,
+      *Detection and safe pass-through verified in-game (forced lockdown);
+      whether lockdown covers entire dungeon/raid maps still needs a grouped
+      in-game check.*
+- [x] Confirm addon message limits on Retail: prefix length, payload size,
       throttling, and which chat types accept addon messages (PARTY, RAID,
       INSTANCE_CHAT, GUILD, WHISPER, CHANNEL, SAY/YELL restrictions).
-- [ ] Measure memory and load-time cost of a ~1 MB Lua data table.
-- [ ] Decide embedded library set (ADR-0004).
+      *From documentation, see `ARCHITECTURE.md` §6.*
+- [x] Measure memory and load-time cost of a ~1 MB Lua data table.
+      *545 ms, ~4.6 MB; see `ARCHITECTURE.md` §9.*
+- [x] Decide embedded library set (ADR-0004).
 
 ### M1 — Skeleton
-- [ ] Addon folder, Retail TOC, namespace bootstrap, event dispatcher.
-- [ ] Compat layer stub with flavor detection.
-- [ ] SavedVariables with defaults and migrations; slash command `/ct`.
-- [ ] Settings panel: target language, enable/disable per chat type.
-- [ ] Tooling: `.luacheckrc`, `.stylua.toml`, busted harness with WoW stubs, CI.
+Started 2026-10-11 with user confirmation; M0's grouped dungeon lockdown check
+runs alongside whenever a second player is available.
+- [x] Addon folder, Retail TOC, namespace bootstrap, event dispatcher.
+- [x] Compat layer stub with flavor detection.
+- [x] SavedVariables with defaults and migrations; slash command `/ct`.
+- [x] Settings panel: target language, enable/disable per chat type.
+      *In-game check pending (`tests/ingame/CHECKLIST.md`, M1).*
+- [x] Tooling: `.luacheckrc`, `.stylua.toml`, busted harness with WoW stubs, CI.
+      *CI workflow not yet run on GitHub.*
 
 ### M2 — Text foundations
-- [ ] UTF-8 helpers (iterate codepoints, length, safe truncate).
-- [ ] Normalizer (case-folding where safe, strip color codes / links into
+- [x] UTF-8 helpers (iterate codepoints, length, safe truncate).
+- [x] Normalizer (case-folding where safe, strip color codes / links into
       placeholders, collapse repeated letters).
-- [ ] Language detector (script ranges + n-gram scoring for Latin-script
+- [x] Language detector (script ranges + n-gram scoring for Latin-script
       languages) with confidence score.
 
 ### M3 — Phrase engine (Tier 2)
-- [ ] Phrase data format and validator tool.
-- [ ] Pattern matcher with parameter slots (role, number, gold amount, link).
-- [ ] Renderer: phrase ID + params → target language string.
-- [ ] Chat display: translated line rendering, visual marking, original on hover.
-- [ ] First language pair data (ADR-0005), common LFG/trade/raid/courtesy phrases.
+Code complete 2026-10-12. In-game verification and native-speaker review
+pending. Do not start M4 without user confirmation.
+- [x] Phrase data format and validator tool.
+- [x] Pattern matcher with parameter slots (role, number, gold amount, link).
+- [x] Renderer: phrase ID + params → target language string.
+- [x] Chat display: translated line rendering, visual marking, original on hover.
+      *In-game hover and group-chat checks pending.*
+- [x] First language pair data (ADR-0005), common LFG/trade/raid/courtesy phrases.
+      *enUS reviewed; deDE and esES are agent drafts (`reviewed = false`).*
 
 ### M4 — CommonTongue protocol (Tier 1) and composer
 - [ ] Wire format v1 and encoder/decoder (ADR required).

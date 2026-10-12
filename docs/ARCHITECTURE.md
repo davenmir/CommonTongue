@@ -1,7 +1,7 @@
 # CommonTongue — Architecture
 
-Status: draft, pending M0 findings. Sections that depend on unverified platform
-facts are marked `> UNVERIFIED:`.
+Status: draft through M3. Sections that depend on unverified platform facts
+are marked `> UNVERIFIED:`.
 
 ## 1. Platform constraints
 
@@ -15,10 +15,43 @@ facts are marked `> UNVERIFIED:`.
 | No `utf8` library; strings are byte arrays | We implement our own UTF-8 helpers (`Core/UTF8.lua`); WoW provides `strlenutf8` |
 | Addon messages limited in size and rate | Protocol must be compact and use a throttled send queue |
 
-> UNVERIFIED: Retail (12.x) "secret values" may make chat message contents
-> unreadable by addons in some contexts (e.g. during encounters or in restricted
-> instances). If so, the engine must detect secret values and skip gracefully.
-> M0 task.
+### 1.1 Retail chat messaging lockdown (12.x)
+
+Documented (warcraft.wiki.gg "Secret Values", "CHAT_MSG_PARTY",
+"C_ChatInfo.SendAddonMessage", retrieved 2026-10-11):
+
+- `CHAT_MSG_*` events carry the `SecretInChatMessagingLockdown` predicate. While
+  lockdown is active, `text`, `playerName`, `guid` and `playerName2` arrive as
+  secret values. `lineID`, `channelName`, `zoneChannelID`, `languageID` and
+  `specialFlags` are `NeverSecret`.
+- Tainted code (all addon code, including chat filters) may store, pass and
+  concatenate secret strings but may not compare, index, measure (`#`), use as
+  table keys, or run `string.find`/`gsub` on them. Violations are immediate Lua
+  errors.
+- Detection: `issecretvalue(v)` per value; `C_ChatInfo.InChatMessagingLockdown()`
+  for the global state (its `lockdownReason` return was removed in 12.0.5).
+- During lockdown, addons cannot send addon messages
+  (`Enum.SendAddonMessageResult.AddOnMessageLockdown`) or regular chat.
+- Consequence: `UI/ChatFilter.lua` must check `issecretvalue(text)` before any
+  string operation and pass the line through untouched. Tiers 1–3 are all
+  unavailable for that line; the composer must disable sending.
+- Change signal: `ADDON_RESTRICTION_STATE_CHANGED` fires with
+  `(restrictionType, state)`; chat lockdown observed as type `5`, state `1`
+  on / `0` off. `ns.Compat` exposes this so the composer and settings UI can
+  update without polling.
+
+Verified in-game on build 120100 (2026-10-11) with the
+`addonChatRestrictionsForced` CVar: lockdown detection, secret SAY text,
+pass-through without errors, and `AddOnMessageLockdown` send results all behave
+as documented. Note that group chat types return `NotInGroup` before the
+lockdown result when solo.
+
+> UNVERIFIED: when lockdown applies. Blizzard's Oct 2025 alpha notes say only
+> while a keystone run, PvP match, or instance encounter is in progress. The
+> current wiki predicate text adds "when the player is on a
+> communication-restricted map such as a dungeon or raid". If the latter holds,
+> CommonTongue cannot read party/raid chat anywhere inside dungeons and raids.
+> Needs in-game check (see `tests/ingame/CHECKLIST.md`).
 
 ## 2. High-level data flow
 
@@ -47,13 +80,31 @@ Incoming chat event (CHAT_MSG_*)
  Renderer (UI/Render.lua): rebuild line, restore links, apply markers
 ```
 
+Coverage: the filter is registered on every player-authored chat event (SAY,
+YELL, EMOTE, PARTY/RAID/INSTANCE incl. leader variants, RAID_WARNING, GUILD,
+OFFICER, WHISPER/BN_WHISPER incl. `_INFORM`, CHANNEL, COMMUNITIES_CHANNEL,
+AFK/DND auto-replies, VOICE_TEXT), defined in one list in `UI/ChatFilter.lua`.
+Message event filters apply to every chat frame showing the event — all tabs,
+user-created windows, and pop-out whisper windows — so no per-window hooking is
+needed. Users can disable translation per chat type in settings.
+
+> UNVERIFIED: chat replacement addons (e.g. EllesmereUIChat, Chattynator,
+> Glass, Prat) honor message event filters. Check before claiming
+> compatibility. EllesmereUIChat is in the developer's own test setup and is
+> confirmed to render chat text its own way: it leaves `|4singular:plural;`
+> grammar escapes unprocessed (seen in `/played`, build 120100). It does honor
+> message event filter output (2026-10-11, SAY and other solo chat types).
+
 Outgoing:
 
 ```
 Composer (UI/Composer.lua) → phrase ID + params
-   ├─► SendChatMessage(rendered text in sender's chosen outgoing language)
+   ├─► C_ChatInfo.SendChatMessage(rendered text in sender's chosen outgoing language)
    └─► Comm/Protocol.lua → throttled addon message with phrase ID + params
 ```
+
+Sending must happen inside a click handler: SAY, YELL and CHANNEL require a
+hardware event. Both sends are blocked during chat messaging lockdown (§1.1).
 
 ## 3. Modules
 
@@ -61,24 +112,26 @@ Each file registers into the shared namespace: `local _, ns = ...`.
 
 | Module | File(s) | Responsibility |
 |---|---|---|
-| Bootstrap | `Core/Init.lua` | Create `ns`, version info, module registry, load order |
-| Compat | `Core/Compat.lua`, `Core/Compat_<Flavor>.lua` | Single access point for flavor-divergent APIs (ADR-0003) |
-| Events | `Core/Events.lua` | Event dispatcher; modules subscribe instead of owning frames |
-| DB | `Core/DB.lua` | SavedVariables defaults, versioned migrations |
+| Bootstrap | `Core/Init.lua` | `ns` fields, module registry, `OnInitialize`/`OnEnable` lifecycle, `L` fallback, `ns:Print` |
+| Compat | `Core/Compat.lua`, `Core/Compat_<Flavor>.lua` | Single access point for flavor-divergent APIs (ADR-0003); also `SafeCall` |
+| Events | `Core/Events.lua` | Event dispatcher; modules subscribe instead of owning frames; drives the lifecycle from `ADDON_LOADED`/`PLAYER_LOGIN` |
+| DB | `Core/DB.lua` | AceDB-backed SavedVariables (`CommonTongueDB`), defaults, schema migrations on raw data before AceDB loads it |
 | UTF8 | `Core/UTF8.lua` | Codepoint iteration, length, safe truncation, script classification |
 | Locale | `Locales/*.lua` | UI strings (`L` table), *not* translation data |
+| Languages | `Engine/Languages.lua` | Supported language codes, native names, client-locale normalization, `targetLanguage` resolution |
 | Normalize | `Engine/Normalize.lua` | Text → token stream with placeholders for links, icons, numbers |
 | Detect | `Engine/Detect.lua` | Language ID + confidence |
 | Phrase | `Engine/Phrase.lua` | Pattern matching to phrase IDs and rendering |
 | Gloss | `Engine/Gloss.lua` | Word lookup for approximate hints |
 | DataLoader | `Engine/Data.lua` | Registers language packs, lazy-builds indexes |
 | Protocol | `Comm/Protocol.lua` | Wire format encode/decode, versioning |
-| Transport | `Comm/Transport.lua` | Prefix registration, send/receive; delegates chunking and throttling to AceComm/ChatThrottleLib if ADR-0004 is accepted, otherwise owns them |
+| Transport | `Comm/Transport.lua` | Thin wrapper over AceComm (ADR-0004): prefix registration, send/receive, lockdown check; chunking and throttling are AceComm/ChatThrottleLib's job |
 | Correlate | `Comm/Correlate.lua` | Matches addon messages to visible chat lines |
 | ChatFilter | `UI/ChatFilter.lua` | Hooks chat events, drives the pipeline |
 | Render | `UI/Render.lua` | Output formatting, tier markers, hover tooltips |
 | Composer | `UI/Composer.lua` | Quick-phrase picker / autocomplete |
-| Settings | `UI/Settings.lua` | Options panel |
+| Settings | `UI/Settings.lua` | AceConfig options panel in the game's Settings window |
+| Slash | `UI/Slash.lua` | `/ct` and `/commontongue` commands |
 
 Dependency rule: `UI → Comm → Engine → Core`. Lower layers never reference
 higher ones. `Engine/` must be pure logic with no WoW API calls (other than via
@@ -148,12 +201,22 @@ Detailed wire format requires an ADR in M4. Design intent:
 - Unknown versions or phrase IDs fall back silently to Tier 2/3.
 - Channels: group, raid, instance, guild, whisper.
 
-> UNVERIFIED: addon message payload limit (believed 255 bytes), throttle rules,
-> and whether SAY/YELL/public channels can carry addon messages on Retail.
-> Public channels (Trade, General) likely cannot be covered by Tier 1 and rely
-> on Tier 2. M0 task. If AceComm is adopted (ADR-0004), it splits long
-> payloads across messages, so the per-message limit constrains throughput
-> rather than message size.
+Documented limits (warcraft.wiki.gg "C_ChatInfo.SendAddonMessage", retrieved
+2026-10-11):
+
+- Prefix ≤ 16 characters, registered with `C_ChatInfo.RegisterAddonMessagePrefix`.
+- Payload ≤ 255 characters; any byte except NUL.
+- Throttle per prefix: burst of 10 messages, regaining 1 per second; whispers
+  outside instances are exempt. The server may change these numbers at any time.
+- Retail chat types: PARTY, RAID, INSTANCE_CHAT, GUILD, OFFICER, WHISPER,
+  CHANNEL (custom channels only). SAY and YELL are Classic-only.
+- Returns `Enum.SendAddonMessageResult` (12.0 added `AddOnMessageLockdown`
+  and `TargetOffline`).
+- Blocked entirely during chat messaging lockdown (§1.1).
+
+Public zone channels (Trade, General) cannot carry addon messages, so they rely
+on Tier 2. AceComm (ADR-0004) splits long payloads across messages, so the
+per-message limit constrains throughput rather than message size.
 
 ## 7. Multi-flavor strategy
 
@@ -171,17 +234,31 @@ differs per flavor (dungeon names, roles) is tagged with a `flavors` field.
 - Cache results per chat line for the duration of a line's display (chat
   filters run once per chat frame, so the same message is filtered multiple
   times). Key by the event's line ID rather than (sender, message), since the
-  same text can legitimately be sent twice.
-
-> UNVERIFIED: the line ID argument (believed to be the 11th event argument of
-> `CHAT_MSG_*`) is unique per line and identical across chat frames. M0 task.
+  same text can legitimately be sent twice. `lineID` is event argument 11,
+  documented as unique per line and `NeverSecret`, so it is usable as a key
+  even during lockdown.
 - No per-message table allocation in hot paths where avoidable.
 
 ## 9. Open questions (resolve in M0)
 
-1. Exact Retail behavior of secret values for chat events.
-2. Addon message limits and permitted chat types on Retail.
-3. Whether `ChatFrame_AddMessageEventFilter` is still the sanctioned API on the
-   current Retail build, or has moved (e.g. into a `ChatFrameUtil` namespace).
-4. Memory/load cost of the data packs at target size.
-5. Library choice (ADR-0004).
+1. Secret values for chat events — documented (§1.1). Open: whether lockdown
+   covers the whole dungeon/raid map or only active keys/encounters/PvP
+   matches. In-game check pending.
+2. Addon message limits and chat types — documented (§6).
+3. Chat filter API — on Retail 12.0+ it is `ChatFrameUtil.AddMessageEventFilter`
+   (same signature); `ChatFrame_AddMessageEventFilter` survives only as an alias
+   in `Blizzard_DeprecatedChatInfo`. `Core/Compat.lua` picks
+   `ChatFrameUtil.AddMessageEventFilter` when present, else the legacy global
+   (source: wow-ui-source 12.0.0 `Deprecated_ChatFrame.lua`). Confirmed present
+   in-game on build 120100 (2026-10-11); open-world SAY/WHISPER/CHANNEL text is
+   readable outside lockdown. Rewriting across all target events and group
+   chat types still pending.
+4. Memory/load cost of the data packs — measured on build 120100 (2026-10-11):
+   a 1.1 MB synthetic pack (6,000 phrases, 18,000 patterns) took 545 ms to
+   load and ~4.6 MB of memory (≈4× file size); building a first-token index
+   took 6 ms and 650 KB. Consequences for M3: load only the languages the user
+   needs (target + enabled source languages), never all packs; load at login or
+   out of combat, never mid-fight, since a half-second load freezes the client;
+   keep per-language packs well under 1 MB. Whether packs become separate
+   load-on-demand addons is an M3 ADR.
+5. Library choice — decided, ADR-0004 accepted.

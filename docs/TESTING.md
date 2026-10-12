@@ -17,30 +17,54 @@ checklist item and be flagged as pending verification.
 ## 2. WoW API stubs
 
 - `tests/stubs/wow.lua` provides minimal fakes: `CreateFrame`, event
-  registration, `C_Timer`, `C_ChatInfo`, `ChatFrame_AddMessageEventFilter`,
-  `GetLocale`, `WOW_PROJECT_ID`, string helpers (`strsplit`, `strtrim`, ...).
-- `tests/helpers/loader.lua` loads addon files in TOC order with a shared `ns`,
-  emulating `local _, ns = ...`.
+  registration, `C_ChatInfo`, `ChatFrameUtil.AddMessageEventFilter`,
+  `GetLocale`, `WOW_PROJECT_ID`, string helpers (`strtrim`, `wipe`, ...).
+  `install()` resets all globals and returns a `state` table: `state.fire(event,
+  ...)` drives events; `state.errors`, `state.printed`, `state.filters` record
+  effects; `state.inCombat`, `state.lockdown`, `state.locale` control the client.
+- Real LibStub, CallbackHandler and AceDB are loaded from `CommonTongue/Libs`.
+  AceGUI and AceConfig need a real client, so the loader replaces them with
+  fakes that record the registered options table.
+- Secret values: the stub provides `issecretvalue` and a way to mark a test
+  string as secret, so specs can assert the chat filter passes it through
+  without touching it.
+- `tests/helpers/loader.lua` loads addon files in TOC order (expanding library
+  `.xml` includes) with a shared `ns`, emulating `local _, ns = ...`.
+  `loader.load({ files = {...} })` loads a subset; `loader.login()` loads all
+  and fires `ADDON_LOADED` + `PLAYER_LOGIN`.
 - Stubs implement only what tests need; extend them alongside tests.
 - `Engine/` must be testable without stubs beyond `ns.UTF8` and data loading.
 
 ## 3. Commands
 
 ```bash
-luacheck .
+python3 tools/fetch_libs.py # once: embedded libraries into CommonTongue/Libs
+tools/check.sh              # luacheck + busted, as CI runs them
 stylua --check .
-busted                      # all specs (config in .busted)
-lua tools/validate_data.lua
-lua tools/coverage.lua samples/chat/*.txt   # phrase coverage report
+lua5.1 tools/validate_data.lua
+# lua tools/coverage.lua samples/chat/*.txt   # coverage reporter still M6-ish
 ```
 
-Local setup on Windows: install Lua 5.1 + LuaRocks (e.g. via `hererocks`) or run
-in WSL; `luarocks install busted luacheck`. StyLua is a standalone binary.
+Local setup on Windows (what the maintainer uses):
+
+```powershell
+wsl -d Ubuntu -- sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks build-essential
+wsl -d Ubuntu -- luarocks --lua-version=5.1 --local install busted
+wsl -d Ubuntu -- luarocks --lua-version=5.1 --local install luacheck
+wsl -d Ubuntu -- bash tools/check.sh
+tools\bin\stylua.exe --check .   # StyLua v2.6.0 Windows binary, gitignored
+```
+
+For in-game testing, link the addon folder into the client:
+`New-Item -ItemType Junction -Path "<WoW>\_retail_\Interface\AddOns\CommonTongue"
+-Target "<repo>\CommonTongue"` (libraries must be fetched first).
 CI is authoritative if local setup differs.
 
 ## 4. Test conventions
 
 - One spec file per module: `tests/unit/<module>_spec.lua`.
+  Engine specs (`utf8`, `normalize`, `detect`, later `phrase`) load only the
+  files they need and must not require AceDB.
 - Language-data tests are table-driven: input line, expected phrase ID,
   expected params, expected rendered output per target language.
 - Every bug fix adds a regression test reproducing it first.
@@ -63,7 +87,8 @@ second client; no taint after combat; behavior inside a raid encounter
 
 ## 7. CI (GitHub Actions)
 
-On every push and PR: luacheck, stylua check, busted, data validation.
+On every push and PR (`.github/workflows/ci.yml`): fetch libraries, luacheck,
+stylua check, busted. Data validation joins in M3.
 On tag `v*`: run the BigWigs packager to build and upload to CurseForge, Wago,
 WoWInterface, and GitHub Releases (API tokens in repository secrets).
 

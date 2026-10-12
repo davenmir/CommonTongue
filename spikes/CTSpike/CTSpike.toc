@@ -1,0 +1,8 @@
+## Interface: 120100, 120105
+## Title: CommonTongue M0 Spike
+## Notes: Throwaway feasibility probes for CommonTongue M0. Not for release.
+## Author: CommonTongue
+## Version: 0.0.1-spike
+## SavedVariables: CTSpikeDB
+
+CTSpike.lua
